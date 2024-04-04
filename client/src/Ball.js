@@ -11,6 +11,7 @@ const Ball = () => {
     const ballSize = 20; // Size of the ball
     const [screenWidth, setscreenWidth] = useState();
     const [screenHeight, setscreenHeight] = useState();
+    const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });
 
     useEffect(() => {
         const newSocket = io('http://localhost:4000');
@@ -26,6 +27,9 @@ const Ball = () => {
     useEffect(() => {
         setscreenWidth(window.innerWidth);
         setscreenHeight(window.innerHeight);
+
+
+
 
         const handleKeyDown = (event) => {
             switch (event.key) {
@@ -45,8 +49,23 @@ const Ball = () => {
                     break;
             }
         };
+        const handleDeviceOrientation = (event) => {
+            const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
+            const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
+
+            // Calculate acceleration based on gyroscope data
+            const newAcceleration = {
+                x: gamma / 50, // Normalize gamma to the range -1 to 1
+                y: beta / 50 // Normalize beta to the range -1 to 1
+            };
+
+            setAcceleration(newAcceleration);
+        };
+
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
 
         window.addEventListener('keydown', handleKeyDown);
+
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
