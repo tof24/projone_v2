@@ -55,8 +55,8 @@ const Ball = () => {
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
-                x: gamma / 50, // Normalize gamma to the range -1 to 1
-                y: beta / 50 // Normalize beta to the range -1 to 1
+                x: gamma / 10, // Normalize gamma to the range -1 to 1
+                y: beta / 10 // Normalize beta to the range -1 to 1
             };
 
             setAcceleration(newAcceleration);
