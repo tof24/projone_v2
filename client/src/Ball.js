@@ -75,8 +75,8 @@ const Ball = () => {
         const interval = setInterval(() => {
             // Update velocity based on acceleration
             setVelocity(prevVelocity => ({
-                x: prevVelocity.x + acceleration.x*5,
-                y: prevVelocity.y + acceleration.y*5
+                x: prevVelocity.x * acceleration.x*0.5,
+                y: prevVelocity.y * acceleration.y*0.5
             }));
 
             // Emit the position of the local player's ball to the server
