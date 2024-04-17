@@ -63,7 +63,6 @@ const Ball = () => {
         };
 
         window.addEventListener('deviceorientation', handleDeviceOrientation);
-
         window.addEventListener('keydown', handleKeyDown);
 
 
@@ -76,8 +75,8 @@ const Ball = () => {
         const interval = setInterval(() => {
             // Update velocity based on acceleration
             setVelocity(prevVelocity => ({
-                x: prevVelocity.x + acceleration.x,
-                y: prevVelocity.y + acceleration.y
+                x: prevVelocity.x + acceleration.x*0.3,
+                y: prevVelocity.y + acceleration.y*0.3
             }));
 
             // Emit the position of the local player's ball to the server
