@@ -55,8 +55,8 @@ const Ball = () => {
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
-                x: gamma / 10, // Normalize gamma to the range -1 to 1
-                y: beta / 10 // Normalize beta to the range -1 to 1
+                x: gamma / 5, // Normalize gamma to the range -1 to 1
+                y: beta / 5 // Normalize beta to the range -1 to 1
             };
 
             setAcceleration(newAcceleration);
@@ -75,8 +75,8 @@ const Ball = () => {
         const interval = setInterval(() => {
             // Update velocity based on acceleration
             setVelocity(prevVelocity => ({
-                x: prevVelocity.x + acceleration.x*0.5,
-                y: prevVelocity.y + acceleration.y*0.5
+                x: prevVelocity.x + acceleration.x*0.95,
+                y: prevVelocity.y + acceleration.y*0.95
             }));
 
             // Emit the position of the local player's ball to the server
