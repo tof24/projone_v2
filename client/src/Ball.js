@@ -50,15 +50,18 @@ const Ball = () => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
 
+            // Adjust sensitivity here
+            const sensitivity = 0.02; // Adjust this value to change sensitivity
+
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
-                x: gamma / 5, // Normalize gamma to the range -1 to 1
-                y: beta / 5 // Normalize beta to the range -1 to 1
+                x: gamma * sensitivity, // Adjust sensitivity here
+                y: beta * sensitivity // Adjust sensitivity here
             };
 
             setAcceleration(newAcceleration);
         };
-
+        
         window.addEventListener('deviceorientation', handleDeviceOrientation);
         window.addEventListener('keydown', handleKeyDown);
 
