@@ -13,7 +13,8 @@ const Ball = () => {
     const [screenHeight, setscreenHeight] = useState();
 
     useEffect(() => {
-        const newSocket = io('http://localhost:4000');
+        //const newSocket = io('http://localhost:4000');
+        const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
         setSocket(newSocket);
 
         newSocket.on('playerPositions', (data) => {
