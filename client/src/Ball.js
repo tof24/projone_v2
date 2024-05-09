@@ -51,7 +51,7 @@ const Ball = () => {
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
 
             // Adjust sensitivity here
-            const sensitivity = 0.02; // Adjust this value to change sensitivity
+            const sensitivity = 0.01; // Adjust this value to change sensitivity
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
@@ -61,7 +61,7 @@ const Ball = () => {
 
             setAcceleration(newAcceleration);
         };
-        
+
         window.addEventListener('deviceorientation', handleDeviceOrientation);
         window.addEventListener('keydown', handleKeyDown);
 
