@@ -70,13 +70,21 @@ const Ball = () => {
         };
     }, []);
 
+    const maxVelocity = 10; // Set your desired maximum velocity
+
     useEffect(() => {
         const interval = setInterval(() => {
             // Update velocity based on acceleration
-            setVelocity(prevVelocity => ({
-                x: prevVelocity.x + acceleration.x,
-                y: prevVelocity.y + acceleration.y
-            }));
+            let newVelocity = {
+                x: velocity.x + acceleration.x,
+                y: velocity.y + acceleration.y
+            };
+
+            // Clamp velocity to stay within the maximum allowed value
+            newVelocity.x = Math.min(Math.max(newVelocity.x, -maxVelocity), maxVelocity);
+            newVelocity.y = Math.min(Math.max(newVelocity.y, -maxVelocity), maxVelocity);
+
+            setVelocity(newVelocity);
 
             // Update position based on velocity
             setPosition(prevPosition => ({
@@ -92,6 +100,7 @@ const Ball = () => {
 
         return () => clearInterval(interval);
     }, [acceleration, velocity]); // Update when acceleration or velocity changes
+
 
     const handleBoundaryCollision = () => {
         // Check if the ball is crossing the left or right border
