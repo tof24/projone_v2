@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 
-
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
     const [position, setPosition] = useState({ x: 20, y: 20 });
-    const [velocity, setVelocity] = useState({ x: 1, y: 1 });
+    const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
     const [screenWidth, setscreenWidth] = useState();
     const [screenHeight, setscreenHeight] = useState();
-    const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });
 
     useEffect(() => {
         const newSocket = io('http://localhost:4000');
@@ -31,16 +30,16 @@ const Ball = () => {
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
-                    setVelocity(prevVelocity => ({ ...prevVelocity, y: prevVelocity.y - 1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.1 })); // Increase acceleration upwards
                     break;
                 case 'ArrowDown':
-                    setVelocity(prevVelocity => ({ ...prevVelocity, y: prevVelocity.y + 1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.1 })); // Increase acceleration downwards
                     break;
                 case 'ArrowLeft':
-                    setVelocity(prevVelocity => ({ ...prevVelocity, x: prevVelocity.x - 1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.1 })); // Increase acceleration leftwards
                     break;
                 case 'ArrowRight':
-                    setVelocity(prevVelocity => ({ ...prevVelocity, x: prevVelocity.x + 1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.1 })); // Increase acceleration rightwards
                     break;
                 default:
                     break;
@@ -51,13 +50,13 @@ const Ball = () => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
 
-            // Calculate velocity based on gyroscope data
-            const newVelocity = {
+            // Calculate acceleration based on gyroscope data
+            const newAcceleration = {
                 x: gamma / 5, // Normalize gamma to the range -1 to 1
                 y: beta / 5 // Normalize beta to the range -1 to 1
             };
 
-            setVelocity(newVelocity);
+            setAcceleration(newAcceleration);
         };
 
         window.addEventListener('deviceorientation', handleDeviceOrientation);
@@ -70,6 +69,12 @@ const Ball = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
+            // Update velocity based on acceleration
+            setVelocity(prevVelocity => ({
+                x: prevVelocity.x + acceleration.x,
+                y: prevVelocity.y + acceleration.y
+            }));
+
             // Update position based on velocity
             setPosition(prevPosition => ({
                 x: prevPosition.x + velocity.x * 0.95,
@@ -83,7 +88,7 @@ const Ball = () => {
         }, 1000 / 60); // Update every 16.67 milliseconds for 60 FPS
 
         return () => clearInterval(interval);
-    }, [velocity]); // Update when velocity changes
+    }, [acceleration, velocity]); // Update when acceleration or velocity changes
 
     const handleBoundaryCollision = () => {
         // Check if the ball is crossing the left or right border
