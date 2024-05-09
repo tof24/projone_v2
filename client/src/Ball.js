@@ -7,15 +7,13 @@ const Ball = () => {
     const [players, setPlayers] = useState({});
     const [position, setPosition] = useState({ x: 20, y: 20 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
-    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
+    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
-    const desiredAspectRatio = 16 / 9; // Desired aspect ratio (16:9)
-    const gameHeight = 600; // Desired game height
-    const gameWidth = gameHeight * desiredAspectRatio; // Calculate game width based on desired aspect ratio
     const [screenWidth, setscreenWidth] = useState();
     const [screenHeight, setscreenHeight] = useState();
 
     useEffect(() => {
+        //const newSocket = io('http://localhost:4000');
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
         setSocket(newSocket);
 
@@ -33,16 +31,16 @@ const Ball = () => {
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.1 })); // Increase acceleration upwards
                     break;
                 case 'ArrowDown':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.1 })); // Increase acceleration downwards
                     break;
                 case 'ArrowLeft':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.1 })); // Increase acceleration leftwards
                     break;
                 case 'ArrowRight':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.1 }));
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.1 })); // Increase acceleration rightwards
                     break;
                 default:
                     break;
@@ -58,8 +56,8 @@ const Ball = () => {
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
-                x: gamma * sensitivity,
-                y: beta * sensitivity
+                x: gamma * sensitivity, // Adjust sensitivity here
+                y: beta * sensitivity // Adjust sensitivity here
             };
 
             setAcceleration(newAcceleration);
@@ -121,44 +119,35 @@ const Ball = () => {
         handleBoundaryCollision();
     }, [position, ballSize, screenWidth, screenHeight]);
 
-    // Calculate the scaling factor for the game area based on the actual screen dimensions
-    const scaleX = window.innerWidth / gameWidth;
-    const scaleY = window.innerHeight / gameHeight;
-    const scale = Math.min(scaleX, scaleY);
-
-    // Adjust the position of the elements based on the scaling factor
-    const adjustedPositionX = position.x * scale;
-    const adjustedPositionY = position.y * scale;
-
     return (
-        <div style={{ width: `${gameWidth}px`, height: `${gameHeight}px`, border: '2px solid black', position: 'relative' }}>
+        <>
             {Object.keys(players).map(playerId => (
                 <div
                     key={playerId}
                     style={{
-                        width: `${ballSize * scale}px`,
-                        height: `${ballSize * scale}px`,
+                        width: `${ballSize}px`,
+                        height: `${ballSize}px`,
                         borderRadius: '50%',
                         backgroundColor: 'darkolivegreen', // Change color for other players' balls
                         position: 'absolute',
-                        top: `${players[playerId].y * scale}px`,
-                        left: `${players[playerId].x * scale}px`,
+                        top: `${players[playerId].y}px`,
+                        left: `${players[playerId].x}px`,
                     }}
                 ></div>
             ))}
             <Trace position={position}></Trace>
             <div
                 style={{
-                    width: `${ballSize * scale}px`,
-                    height: `${ballSize * scale}px`,
+                    width: `${ballSize}px`,
+                    height: `${ballSize}px`,
                     borderRadius: '50%',
                     backgroundColor: 'red',
                     position: 'absolute',
-                    top: `${adjustedPositionY}px`,
-                    left: `${adjustedPositionX}px`,
+                    top: `${position.y}px`,
+                    left: `${position.x}px`,
                 }}
             ></div>
-        </div>
+        </>
     );
 };
 
