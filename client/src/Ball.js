@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
+import './App.css'
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -122,7 +123,7 @@ const Ball = () => {
     }, [position, ballSize, screenWidth, screenHeight]);
 
     return (
-        <>
+        <div id="game-container">
             {Object.keys(players).map(playerId => (
                 <div
                     key={playerId}
@@ -149,7 +150,7 @@ const Ball = () => {
                     left: `${position.x}px`,
                 }}
             ></div>
-        </>
+        </div>
     );
 };
 
