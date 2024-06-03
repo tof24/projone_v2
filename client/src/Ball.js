@@ -5,9 +5,9 @@ import Trace from "./Trace";
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 20, y: 20 });
+    const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
-    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
+    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const ballSize = 20; // Size of the ball
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [screenHeight, setScreenHeight] = useState(window.innerHeight);
@@ -100,7 +100,12 @@ const Ball = () => {
             }));
 
             if (socket) {
-                socket.emit('playerMove', { position: { x: position.x / screenWidth, y: position.y / screenHeight } });
+                socket.emit('playerMove', {
+                    position: {
+                        x: position.x / screenWidth,
+                        y: (screenHeight - position.y) / screenHeight  // Flip the y-axis
+                    }
+                });
             }
         }, 1000 / 60);
 
@@ -132,7 +137,7 @@ const Ball = () => {
                         borderRadius: '50%',
                         backgroundColor: 'darkolivegreen',
                         position: 'absolute',
-                        top: `${players[playerId].y * screenHeight}px`,
+                        top: `${(1 - players[playerId].y) * screenHeight}px`, // Flip the y-axis for players
                         left: `${players[playerId].x * screenWidth}px`,
                     }}
                 ></div>
