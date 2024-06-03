@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
-import 'App.css';
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
