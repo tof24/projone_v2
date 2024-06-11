@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 
+
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
@@ -121,33 +122,22 @@ const Ball = () => {
         handleBoundaryCollision();
     }, [position, ballSize, screenWidth, screenHeight]);
 
-    // Function to rotate position by 90 degrees clockwise
-    const rotatePosition = (x, y) => {
-        return {
-            x: screenHeight - y * screenHeight,
-            y: x * screenWidth
-        };
-    };
-
     return (
         <>
-            {Object.keys(players).map(playerId => {
-                const rotatedPosition = rotatePosition(players[playerId].x, players[playerId].y);
-                return (
-                    <div
-                        key={playerId}
-                        style={{
-                            width: `${ballSize}px`,
-                            height: `${ballSize}px`,
-                            borderRadius: '50%',
-                            backgroundColor: 'darkolivegreen',
-                            position: 'absolute',
-                            top: `${rotatedPosition.y}px`,
-                            left: `${rotatedPosition.x}px`,
-                        }}
-                    ></div>
-                );
-            })}
+            {Object.keys(players).map(playerId => (
+                <div
+                    key={playerId}
+                    style={{
+                        width: `${ballSize}px`,
+                        height: `${ballSize}px`,
+                        borderRadius: '50%',
+                        backgroundColor: 'darkolivegreen',
+                        position: 'absolute',
+                        top: `${players[playerId].y * screenHeight}px`,
+                        left: `${players[playerId].x * screenWidth}px`,
+                    }}
+                ></div>
+            ))}
             <Trace position={position}></Trace>
             <div
                 style={{
@@ -156,8 +146,8 @@ const Ball = () => {
                     borderRadius: '50%',
                     backgroundColor: 'red',
                     position: 'absolute',
-                    top: `${rotatePosition(position.x, position.y).y}px`,
-                    left: `${rotatePosition(position.x, position.y).x}px`,
+                    top: `${position.y}px`,
+                    left: `${position.x}px`,
                 }}
             ></div>
         </>
