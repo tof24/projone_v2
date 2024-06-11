@@ -10,8 +10,7 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
 
-    const playZoneWidthPercent = 50;
-    const playZoneHeightPercent = 100;
+    const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
@@ -100,10 +99,7 @@ const Ball = () => {
         return () => clearInterval(interval);
     }, [acceleration, velocity]); // Update when acceleration or velocity changes
 
-    const handleBoundaryCollision = () => {
-        const playZoneWidth = (window.innerWidth * playZoneWidthPercent) / 100;
-        const playZoneHeight = (window.innerHeight * playZoneHeightPercent) / 100;
-
+    const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
         // Check if the ball is crossing the left or right border
         if (position.x < 0 || position.x + ballSize > playZoneWidth) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
@@ -116,8 +112,33 @@ const Ball = () => {
     };
 
     useEffect(() => {
-        handleBoundaryCollision();
+        const playZoneWidth = window.innerWidth;
+        const playZoneHeight = window.innerHeight;
+
+        handleBoundaryCollision(playZoneWidth, playZoneHeight);
     }, [position, ballSize]);
+
+    const playZoneStyle = () => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let playZoneWidth, playZoneHeight;
+
+        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
+            playZoneWidth = viewportWidth;
+            playZoneHeight = viewportWidth / playZoneAspectRatio;
+        } else {
+            playZoneHeight = viewportHeight;
+            playZoneWidth = viewportHeight * playZoneAspectRatio;
+        }
+
+        return {
+            width: `${playZoneWidth}px`,
+            height: `${playZoneHeight}px`,
+            backgroundColor: 'white',
+            position: 'relative',
+            overflow: 'hidden'
+        };
+    };
 
     return (
         <div style={{
@@ -128,13 +149,7 @@ const Ball = () => {
             justifyContent: 'center',
             alignItems: 'center'
         }}>
-            <div style={{
-                width: `${playZoneWidthPercent}vw`,
-                height: `${playZoneHeightPercent}vh`,
-                backgroundColor: 'white',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
+            <div style={playZoneStyle()}>
                 {Object.keys(players).map(playerId => (
                     <div
                         key={playerId}
