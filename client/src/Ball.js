@@ -9,8 +9,8 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
-    const [screenWidth, setscreenWidth] = useState();
-    const [screenHeight, setscreenHeight] = useState();
+    const [screenWidth, setscreenWidth] = useState(window.innerWidth);
+    const [screenHeight, setscreenHeight] = useState(window.innerHeight);
 
     useEffect(() => {
         //const newSocket = io('http://localhost:4000');
@@ -25,8 +25,12 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-        setscreenWidth(window.innerWidth);
-        setscreenHeight(window.innerHeight);
+        const handleResize = () => {
+            setscreenWidth(window.innerWidth);
+            setscreenHeight(window.innerHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
 
         const handleKeyDown = (event) => {
             switch (event.key) {
@@ -68,6 +72,8 @@ const Ball = () => {
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
     }, []);
 
@@ -105,49 +111,64 @@ const Ball = () => {
 
     const handleBoundaryCollision = () => {
         // Check if the ball is crossing the left or right border
-        if (position.x < 0 || position.x + ballSize > screenWidth) {
+        if (position.x < 0 || position.x + ballSize > 1080) { // Modified for fixed play zone width
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > screenHeight) {
+        if (position.y < 0 || position.y + ballSize > 1920) { // Modified for fixed play zone height
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
 
     useEffect(() => {
         handleBoundaryCollision();
-    }, [position, ballSize, screenWidth, screenHeight]);
+    }, [position, ballSize]);
 
     return (
-        <>
-            {Object.keys(players).map(playerId => (
+        <div style={{
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'black',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+        }}>
+            <div style={{
+                width: '1080px',
+                height: '1920px',
+                backgroundColor: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                {Object.keys(players).map(playerId => (
+                    <div
+                        key={playerId}
+                        style={{
+                            width: `${ballSize}px`,
+                            height: `${ballSize}px`,
+                            borderRadius: '50%',
+                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                            position: 'absolute',
+                            top: `${players[playerId].y}px`,
+                            left: `${players[playerId].x}px`,
+                        }}
+                    ></div>
+                ))}
+                <Trace position={position}></Trace>
                 <div
-                    key={playerId}
                     style={{
                         width: `${ballSize}px`,
                         height: `${ballSize}px`,
                         borderRadius: '50%',
-                        backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                        backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${players[playerId].y}px`,
-                        left: `${players[playerId].x}px`,
+                        top: `${position.y}px`,
+                        left: `${position.x}px`,
                     }}
                 ></div>
-            ))}
-            <Trace position={position}></Trace>
-            <div
-                style={{
-                    width: `${ballSize}px`,
-                    height: `${ballSize}px`,
-                    borderRadius: '50%',
-                    backgroundColor: 'red',
-                    position: 'absolute',
-                    top: `${position.y}px`,
-                    left: `${position.x}px`,
-                }}
-            ></div>
-        </>
+            </div>
+        </div>
     );
 };
 
