@@ -7,7 +7,7 @@ import Ball from "./Ball";
 function App() {
   return (
       <div>
-        <Orientation/>
+
         <Ball/>
       </div>
   );

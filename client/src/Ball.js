@@ -9,11 +9,11 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
-    const [screenWidth, setscreenWidth] = useState(window.innerWidth);
-    const [screenHeight, setscreenHeight] = useState(window.innerHeight);
+
+    const playZoneWidth = 1080;
+    const playZoneHeight = 1920;
 
     useEffect(() => {
-        //const newSocket = io('http://localhost:4000');
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
         setSocket(newSocket);
 
@@ -25,13 +25,6 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-        const handleResize = () => {
-            setscreenWidth(window.innerWidth);
-            setscreenHeight(window.innerHeight);
-        };
-
-        window.addEventListener('resize', handleResize);
-
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
@@ -72,7 +65,6 @@ const Ball = () => {
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('resize', handleResize);
             window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
     }, []);
@@ -95,8 +87,8 @@ const Ball = () => {
 
             // Update position based on velocity
             setPosition(prevPosition => ({
-                x: prevPosition.x + velocity.x * 0.95,
-                y: prevPosition.y + velocity.y * 0.95
+                x: Math.min(Math.max(prevPosition.x + newVelocity.x * 0.95, 0), playZoneWidth - ballSize),
+                y: Math.min(Math.max(prevPosition.y + newVelocity.y * 0.95, 0), playZoneHeight - ballSize)
             }));
 
             // Emit the position of the local player's ball to the server
@@ -108,23 +100,6 @@ const Ball = () => {
         return () => clearInterval(interval);
     }, [acceleration, velocity]); // Update when acceleration or velocity changes
 
-
-    const handleBoundaryCollision = () => {
-        // Check if the ball is crossing the left or right border
-        if (position.x < 0 || position.x + ballSize > 1080) { // Modified for fixed play zone width
-            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
-        }
-
-        // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > 1920) { // Modified for fixed play zone height
-            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
-        }
-    };
-
-    useEffect(() => {
-        handleBoundaryCollision();
-    }, [position, ballSize]);
-
     return (
         <div style={{
             width: '100vw',
@@ -135,8 +110,8 @@ const Ball = () => {
             alignItems: 'center'
         }}>
             <div style={{
-                width: '1080px',
-                height: '1920px',
+                width: `${playZoneWidth}px`,
+                height: `${playZoneHeight}px`,
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden'
