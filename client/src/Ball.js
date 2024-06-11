@@ -10,8 +10,8 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
 
-    const playZoneWidth = 1080;
-    const playZoneHeight = 1920;
+    const playZoneWidthPercent = 50;
+    const playZoneHeightPercent = 100;
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
@@ -87,8 +87,8 @@ const Ball = () => {
 
             // Update position based on velocity
             setPosition(prevPosition => ({
-                x: Math.min(Math.max(prevPosition.x + newVelocity.x * 0.95, 0), playZoneWidth - ballSize),
-                y: Math.min(Math.max(prevPosition.y + newVelocity.y * 0.95, 0), playZoneHeight - ballSize)
+                x: prevPosition.x + newVelocity.x * 0.95,
+                y: prevPosition.y + newVelocity.y * 0.95
             }));
 
             // Emit the position of the local player's ball to the server
@@ -100,6 +100,25 @@ const Ball = () => {
         return () => clearInterval(interval);
     }, [acceleration, velocity]); // Update when acceleration or velocity changes
 
+    const handleBoundaryCollision = () => {
+        const playZoneWidth = (window.innerWidth * playZoneWidthPercent) / 100;
+        const playZoneHeight = (window.innerHeight * playZoneHeightPercent) / 100;
+
+        // Check if the ball is crossing the left or right border
+        if (position.x < 0 || position.x + ballSize > playZoneWidth) {
+            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
+        }
+
+        // Check if the ball is crossing the top or bottom border
+        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
+            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
+        }
+    };
+
+    useEffect(() => {
+        handleBoundaryCollision();
+    }, [position, ballSize]);
+
     return (
         <div style={{
             width: '100vw',
@@ -110,8 +129,8 @@ const Ball = () => {
             alignItems: 'center'
         }}>
             <div style={{
-                width: `${playZoneWidth}px`,
-                height: `${playZoneHeight}px`,
+                width: `${playZoneWidthPercent}vw`,
+                height: `${playZoneHeightPercent}vh`,
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden'
