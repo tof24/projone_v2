@@ -147,7 +147,8 @@ const Ball = () => {
             backgroundColor: 'black',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            overflow: 'hidden'  // Prevent scrolling
         }}>
             <div style={playZoneStyle()}>
                 {Object.keys(players).map(playerId => (
