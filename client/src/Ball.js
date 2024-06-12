@@ -164,8 +164,8 @@ const Ball = () => {
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
-            ...(isDesktopLandscape ? { transform: 'rotate(90deg)', transformOrigin: 'center' } : {})
-        }}>
+
+        } + isDesktopLandscape ? { transform: 'rotate(90deg)', transformOrigin: 'center' } : {}}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
                     <div
