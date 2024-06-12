@@ -158,7 +158,9 @@ const Ball = () => {
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
-            position: 'relative'
+            position: 'relative',
+            transform: 'rotate(90deg)',
+            transformOrigin: 'center'
         }}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
