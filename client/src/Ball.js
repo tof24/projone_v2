@@ -112,15 +112,15 @@ const Ball = () => {
     };
 
     useEffect(() => {
-        const playZoneWidth = window.innerWidth-100;
-        const playZoneHeight = window.innerHeight-100;
+        const playZoneWidth = window.innerWidth;
+        const playZoneHeight = window.innerHeight;
 
         handleBoundaryCollision(playZoneWidth, playZoneHeight);
     }, [position, ballSize]);
 
     const playZoneStyle = () => {
-        const viewportWidth = window.innerWidth-100;
-        const viewportHeight = window.innerHeight-100;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
         let playZoneWidth, playZoneHeight;
 
         if (viewportWidth / viewportHeight < playZoneAspectRatio) {
