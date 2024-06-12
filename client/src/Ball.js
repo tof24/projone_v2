@@ -134,18 +134,12 @@ const Ball = () => {
         }
     };
 
-    const isDesktopLandscape = () => {
-        return window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
-    };
-
     const playZoneStyle = {
-        width: isDesktopLandscape() ? `${playZoneDimensions.playZoneHeight}px` : `${playZoneDimensions.playZoneWidth}px`,
-        height: isDesktopLandscape() ? `${playZoneDimensions.playZoneWidth}px` : `${playZoneDimensions.playZoneHeight}px`,
+        width: `${playZoneDimensions.playZoneWidth}px`,
+        height: `${playZoneDimensions.playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden',
-        transform: isDesktopLandscape() ? 'rotate(90deg)' : 'none',
-        transformOrigin: 'center'
+        overflow: 'hidden'
     };
 
     return (
@@ -184,7 +178,6 @@ const Ball = () => {
                         position: 'absolute',
                         top: `${position.y * scale}px`,
                         left: `${position.x * scale}px`,
-                        
                     }}
                 ></div>
             </div>
