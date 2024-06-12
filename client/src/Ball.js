@@ -119,33 +119,37 @@ const Ball = () => {
     }, [position, ballSize, playZoneDimensions]);
 
     const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
-        const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
-        const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
-        const scale = Math.min(scaleX, scaleY);
-
         // Check if the ball is crossing the left or right border
-        if (position.x * scale < 0 || position.x * scale + ballSize > playZoneWidth) {
+        if (position.x < 0 || position.x + ballSize > playZoneWidth) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y * scale < 0 || position.y * scale + ballSize > playZoneHeight) {
+        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
 
+    const isDesktopLandscape = () => {
+        return window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
+    };
+
     const playZoneStyle = {
-        width: `${playZoneDimensions.playZoneWidth}px`,
-        height: `${playZoneDimensions.playZoneHeight}px`,
+        width: isDesktopLandscape() ? `${playZoneDimensions.playZoneHeight}px` : `${playZoneDimensions.playZoneWidth}px`,
+        height: isDesktopLandscape() ? `${playZoneDimensions.playZoneWidth}px` : `${playZoneDimensions.playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: isDesktopLandscape() ? 'rotate(90deg)' : 'none',
+        transformOrigin: 'center',
+        marginLeft: isDesktopLandscape() ? `${(playZoneDimensions.playZoneHeight - playZoneDimensions.playZoneWidth) / 2}px` : 'auto',
+        marginTop: isDesktopLandscape() ? `${(playZoneDimensions.playZoneWidth - playZoneDimensions.playZoneHeight) / 2}px` : 'auto',
     };
 
     return (
         <div style={{
-            width: '100vw',
-            height: '100vh',
+            width: isDesktopLandscape() ? '100vh' : '100vw',
+            height: isDesktopLandscape() ? '100vw' : '100vh',
             backgroundColor: 'black',
             display: 'flex',
             justifyContent: 'center',
@@ -163,8 +167,8 @@ const Ball = () => {
                             borderRadius: '50%',
                             backgroundColor: 'darkolivegreen', // Change color for other players' balls
                             position: 'absolute',
-                            top: `${players[playerId].y * scale}px`,
-                            left: `${players[playerId].x * scale}px`,
+                            top: `${players[playerId].y}px`,
+                            left: `${players[playerId].x}px`,
                         }}
                     ></div>
                 ))}
@@ -176,8 +180,8 @@ const Ball = () => {
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${position.y * scale}px`,
-                        left: `${position.x * scale}px`,
+                        top: `${position.y}px`,
+                        left: `${position.x}px`,
                     }}
                 ></div>
             </div>
