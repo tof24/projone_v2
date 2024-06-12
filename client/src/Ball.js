@@ -134,12 +134,18 @@ const Ball = () => {
         }
     };
 
+    const isDesktopLandscape = () => {
+        return window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
+    };
+
     const playZoneStyle = {
-        width: `${playZoneDimensions.playZoneWidth}px`,
-        height: `${playZoneDimensions.playZoneHeight}px`,
+        width: isDesktopLandscape() ? `${playZoneDimensions.playZoneHeight}px` : `${playZoneDimensions.playZoneWidth}px`,
+        height: isDesktopLandscape() ? `${playZoneDimensions.playZoneWidth}px` : `${playZoneDimensions.playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: isDesktopLandscape() ? 'rotate(90deg)' : 'none',
+        transformOrigin: 'center'
     };
 
     return (
