@@ -7,7 +7,6 @@ import Ball from "./Ball";
 function App() {
   return (
       <div>
-
         <Ball/>
       </div>
   );

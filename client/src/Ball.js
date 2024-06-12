@@ -106,7 +106,7 @@ const Ball = () => {
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
+        if (position.y < 0 || position.y + ballSize*1.5 > playZoneHeight) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
