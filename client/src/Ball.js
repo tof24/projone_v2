@@ -135,15 +135,15 @@ const Ball = () => {
     };
 
     const playZoneStyle = {
-        width: isDesktopLandscape() ? `${playZoneDimensions.playZoneHeight}px` : `${playZoneDimensions.playZoneWidth}px`,
-        height: isDesktopLandscape() ? `${playZoneDimensions.playZoneWidth}px` : `${playZoneDimensions.playZoneHeight}px`,
+        width: isDesktopLandscape() ? '80vw' : '100vw',
+        height: isDesktopLandscape() ? '80vh' : '100vh',
         backgroundColor: 'white',
         position: 'relative',
         overflow: 'hidden',
         transform: isDesktopLandscape() ? 'rotate(90deg)' : 'none',
         transformOrigin: 'center',
-        marginLeft: isDesktopLandscape() ? `${(playZoneDimensions.playZoneHeight - playZoneDimensions.playZoneWidth) / 2}px` : 'auto',
-        marginTop: isDesktopLandscape() ? `${(playZoneDimensions.playZoneWidth - playZoneDimensions.playZoneHeight) / 2}px` : 'auto',
+        marginLeft: isDesktopLandscape() ? '-10vw' : 'auto',
+        marginTop: isDesktopLandscape() ? '10vh' : 'auto',
     };
 
     return (
