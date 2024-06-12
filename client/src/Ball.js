@@ -184,6 +184,7 @@ const Ball = () => {
                         position: 'absolute',
                         top: `${position.y * scale}px`,
                         left: `${position.x * scale}px`,
+                        
                     }}
                 ></div>
             </div>
