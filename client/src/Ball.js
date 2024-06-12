@@ -9,6 +9,8 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
+    const [playZoneWidth, setPlayZoneWidth] = useState(window.innerWidth);
+    const [playZoneHeight, setPlayZoneHeight] = useState(window.innerHeight);
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
@@ -112,23 +114,22 @@ const Ball = () => {
     };
 
     useEffect(() => {
-        const playZoneWidth = window.innerWidth;
-        const playZoneHeight = window.innerHeight;
 
-        handleBoundaryCollision(playZoneWidth, playZoneHeight);
+        handleBoundaryCollision();
     }, [position, ballSize]);
 
     const playZoneStyle = () => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        let playZoneWidth, playZoneHeight;
+     
 
         if (viewportWidth / viewportHeight < playZoneAspectRatio) {
-            playZoneWidth = viewportWidth;
-            playZoneHeight = viewportWidth / playZoneAspectRatio;
+            setPlayZoneWidth(viewportWidth);
+            setPlayZoneHeight(viewportWidth / playZoneAspectRatio);
         } else {
-            playZoneHeight = viewportHeight;
-            playZoneWidth = viewportHeight * playZoneAspectRatio;
+            setPlayZoneWidth(viewportHeight * playZoneAspectRatio);
+            setPlayZoneHeight(viewportHeight);
+
         }
 
         return {
