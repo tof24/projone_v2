@@ -28,6 +28,10 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     };
 
+    function isDesktopOrLandscape() {
+        return window.matchMedia("(min-width: 1024px) and (orientation: landscape)").matches;
+    }
+
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
 
     useEffect(() => {
@@ -68,6 +72,7 @@ const Ball = () => {
                     break;
             }
         };
+        const isDesktopLandscape = isDesktopOrLandscape();
 
         const handleDeviceOrientation = (event) => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
@@ -159,8 +164,7 @@ const Ball = () => {
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
-            transform: 'rotate(90deg)',
-            transformOrigin: 'center'
+            ...(isDesktopLandscape ? { transform: 'rotate(90deg)', transformOrigin: 'center' } : {})
         }}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
