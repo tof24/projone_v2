@@ -12,6 +12,24 @@ const Ball = () => {
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
+    const calculatePlayZoneDimensions = () => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let playZoneWidth, playZoneHeight;
+
+        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
+            playZoneWidth = viewportWidth;
+            playZoneHeight = viewportWidth / playZoneAspectRatio;
+        } else {
+            playZoneHeight = viewportHeight;
+            playZoneWidth = viewportHeight * playZoneAspectRatio;
+        }
+
+        return { playZoneWidth, playZoneHeight };
+    };
+
+    const { playZoneWidth, playZoneHeight } = calculatePlayZoneDimensions();
+
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
         setSocket(newSocket);
@@ -112,32 +130,15 @@ const Ball = () => {
     };
 
     useEffect(() => {
-        const playZoneWidth = window.innerWidth;
-        const playZoneHeight = window.innerHeight;
-
         handleBoundaryCollision(playZoneWidth, playZoneHeight);
-    }, [position, ballSize]);
+    }, [position, ballSize, playZoneWidth, playZoneHeight]);
 
-    const playZoneStyle = () => {
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        let playZoneWidth, playZoneHeight;
-
-        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
-            playZoneWidth = viewportWidth;
-            playZoneHeight = viewportWidth / playZoneAspectRatio;
-        } else {
-            playZoneHeight = viewportHeight;
-            playZoneWidth = viewportHeight * playZoneAspectRatio;
-        }
-
-        return {
-            width: `${playZoneWidth}px`,
-            height: `${playZoneHeight}px`,
-            backgroundColor: 'white',
-            position: 'relative',
-            overflow: 'hidden'
-        };
+    const playZoneStyle = {
+        width: `${playZoneWidth}px`,
+        height: `${playZoneHeight}px`,
+        backgroundColor: 'white',
+        position: 'relative',
+        overflow: 'hidden'
     };
 
     return (
@@ -151,7 +152,7 @@ const Ball = () => {
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative'
         }}>
-            <div style={playZoneStyle()}>
+            <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
                     <div
                         key={playerId}
