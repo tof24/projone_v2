@@ -28,7 +28,15 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     };
 
-    const { playZoneWidth, playZoneHeight } = calculatePlayZoneDimensions();
+    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
+
+    useEffect(() => {
+        const handleResize = () => {
+            setPlayZoneDimensions(calculatePlayZoneDimensions());
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
@@ -115,7 +123,11 @@ const Ball = () => {
         }, 1000 / 60); // Update every 16.67 milliseconds for 60 FPS
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity]); // Update when acceleration or velocity changes
+    }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
+
+    useEffect(() => {
+        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight);
+    }, [position, ballSize, playZoneDimensions]);
 
     const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
         // Check if the ball is crossing the left or right border
@@ -129,13 +141,9 @@ const Ball = () => {
         }
     };
 
-    useEffect(() => {
-        handleBoundaryCollision(playZoneWidth, playZoneHeight);
-    }, [position, ballSize, playZoneWidth, playZoneHeight]);
-
     const playZoneStyle = {
-        width: `${playZoneWidth}px`,
-        height: `${playZoneHeight}px`,
+        width: `${playZoneDimensions.playZoneWidth}px`,
+        height: `${playZoneDimensions.playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
         overflow: 'hidden'
