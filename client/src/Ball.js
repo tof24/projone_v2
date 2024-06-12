@@ -10,11 +10,22 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
 
-    const calculatePlayZoneDimensions = () => {
-        const standardWidth = 1920;
-        const standardHeight = 1080;
+    const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
-        return { playZoneWidth: standardWidth, playZoneHeight: standardHeight };
+    const calculatePlayZoneDimensions = () => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let playZoneWidth, playZoneHeight;
+
+        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
+            playZoneWidth = viewportWidth;
+            playZoneHeight = viewportWidth / playZoneAspectRatio;
+        } else {
+            playZoneHeight = viewportHeight;
+            playZoneWidth = viewportHeight * playZoneAspectRatio;
+        }
+
+        return { playZoneWidth, playZoneHeight };
     };
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
@@ -130,26 +141,18 @@ const Ball = () => {
         }
     };
 
-    const isDesktopLandscape = () => {
-        return window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
-    };
-
     const playZoneStyle = {
-        width: isDesktopLandscape() ? '80vw' : '100vw',
-        height: isDesktopLandscape() ? '80vh' : '100vh',
+        width: `${playZoneDimensions.playZoneWidth}px`,
+        height: `${playZoneDimensions.playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden',
-        transform: isDesktopLandscape() ? 'rotate(90deg)' : 'none',
-        transformOrigin: 'center',
-        marginLeft: isDesktopLandscape() ? '-10vw' : 'auto',
-        marginTop: isDesktopLandscape() ? '10vh' : 'auto',
+        overflow: 'hidden'
     };
 
     return (
         <div style={{
-            width: isDesktopLandscape() ? '100vh' : '100vw',
-            height: isDesktopLandscape() ? '100vw' : '100vh',
+            width: '100vw',
+            height: '100vh',
             backgroundColor: 'black',
             display: 'flex',
             justifyContent: 'center',
