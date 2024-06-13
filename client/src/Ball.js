@@ -42,6 +42,7 @@ const Ball = () => {
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
 
+    useEffect(() => {
     const handleOrientationChange = () => {
         setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
     };
@@ -51,6 +52,7 @@ const Ball = () => {
 
     // Listen for orientation changes
     window.addEventListener('orientationchange', handleOrientationChange);
+    });
 
     useEffect(() => {
         const handleResize = () => {
