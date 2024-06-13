@@ -9,11 +9,25 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
-    const [screenWidth, setscreenWidth] = useState();
-    const [screenHeight, setscreenHeight] = useState();
+
+    const calculatePlayZoneDimensions = () => {
+        const standardWidth = 1920;
+        const standardHeight = 1080;
+
+        return { playZoneWidth: standardWidth, playZoneHeight: standardHeight };
+    };
+
+    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
 
     useEffect(() => {
-        //const newSocket = io('http://localhost:4000');
+        const handleResize = () => {
+            setPlayZoneDimensions(calculatePlayZoneDimensions());
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
         setSocket(newSocket);
 
@@ -25,9 +39,6 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-        setscreenWidth(window.innerWidth);
-        setscreenHeight(window.innerHeight);
-
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
@@ -68,6 +79,7 @@ const Ball = () => {
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
     }, []);
 
@@ -89,8 +101,8 @@ const Ball = () => {
 
             // Update position based on velocity
             setPosition(prevPosition => ({
-                x: prevPosition.x + velocity.x * 0.95,
-                y: prevPosition.y + velocity.y * 0.95
+                x: prevPosition.x + newVelocity.x * 0.95,
+                y: prevPosition.y + newVelocity.y * 0.95
             }));
 
             // Emit the position of the local player's ball to the server
@@ -100,54 +112,79 @@ const Ball = () => {
         }, 1000 / 60); // Update every 16.67 milliseconds for 60 FPS
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity]); // Update when acceleration or velocity changes
+    }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
 
+    useEffect(() => {
+        const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
+        const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
+        const scale = Math.min(scaleX, scaleY);
+        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight, scale);
+    }, [position, ballSize, playZoneDimensions]);
 
-    const handleBoundaryCollision = () => {
+    const handleBoundaryCollision = (playZoneWidth, playZoneHeight, scale) => {
         // Check if the ball is crossing the left or right border
-        if (position.x < 0 || position.x + ballSize > screenWidth) {
+        if (position.x * scale < 0 || position.x * scale + ballSize > playZoneWidth) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > screenHeight) {
+        if (position.y * scale < 0 || position.y * scale + ballSize > playZoneHeight) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
 
-    useEffect(() => {
-        handleBoundaryCollision();
-    }, [position, ballSize, screenWidth, screenHeight]);
+    const playZoneStyle = {
+        width: `${playZoneDimensions.playZoneWidth}px`,
+        height: `${playZoneDimensions.playZoneHeight}px`,
+        backgroundColor: 'white',
+        position: 'relative',
+        overflow: 'hidden'
+    };
+
+    const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
+    const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
+    const scale = Math.min(scaleX, scaleY);
 
     return (
-        <>
-            {Object.keys(players).map(playerId => (
+        <div style={{
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'black',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden',  // Prevent scrolling
+            position: 'relative'
+        }}>
+            <div style={playZoneStyle}>
+                {Object.keys(players).map(playerId => (
+                    <div
+                        key={playerId}
+                        style={{
+                            width: `${ballSize}px`,
+                            height: `${ballSize}px`,
+                            borderRadius: '50%',
+                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                            position: 'absolute',
+                            top: `${players[playerId].y * scale}px`,
+                            left: `${players[playerId].x * scale}px`,
+                        }}
+                    ></div>
+                ))}
+                <Trace position={position}></Trace>
                 <div
-                    key={playerId}
                     style={{
                         width: `${ballSize}px`,
                         height: `${ballSize}px`,
                         borderRadius: '50%',
-                        backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                        backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${players[playerId].y}px`,
-                        left: `${players[playerId].x}px`,
+                        top: `${position.y * scale}px`,
+                        left: `${position.x * scale}px`,
                     }}
                 ></div>
-            ))}
-            <Trace position={position}></Trace>
-            <div
-                style={{
-                    width: `${ballSize}px`,
-                    height: `${ballSize}px`,
-                    borderRadius: '50%',
-                    backgroundColor: 'red',
-                    position: 'absolute',
-                    top: `${position.y}px`,
-                    left: `${position.x}px`,
-                }}
-            ></div>
-        </>
+            </div>
+        </div>
     );
 };
 
