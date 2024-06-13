@@ -14,8 +14,7 @@ const Ball = () => {
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
-    useEffect(() => {
-        const lockOrientation = () => {
+
             if (screen.orientation) {
                 screen.orientation.lock('portrait').catch((error) => {
                     console.error('Error locking orientation:', error);
@@ -23,12 +22,9 @@ const Ball = () => {
             } else {
                 console.log('Screen orientation API not supported.');
             }
-        };
+   
 
-        lockOrientation();
 
-       console.log("isLocked");
-    }, []);
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
