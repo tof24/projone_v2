@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 
@@ -12,7 +12,7 @@ const Ball = () => {
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
-    const calculatePlayZoneDimensions = () => {
+    const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         let playZoneWidth, playZoneHeight;
@@ -26,9 +26,9 @@ const Ball = () => {
         }
 
         return { playZoneWidth, playZoneHeight };
-    };
+    }, [playZoneAspectRatio]);
 
-    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
+    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions);
 
     useEffect(() => {
         const handleResize = () => {
@@ -36,7 +36,7 @@ const Ball = () => {
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [calculatePlayZoneDimensions]);
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
@@ -125,11 +125,7 @@ const Ball = () => {
         return () => clearInterval(interval);
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
 
-    useEffect(() => {
-        handleBoundaryCollision();
-    }, [position, ballSize]);
-
-    const handleBoundaryCollision = () => {
+    const handleBoundaryCollision = useCallback(() => {
         // Check if the ball is crossing the left or right border
         if (position.x < 0 || position.x + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
@@ -139,7 +135,11 @@ const Ball = () => {
         if (position.y < 0 || position.y + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
-    };
+    }, [position, ballSize]);
+
+    useEffect(() => {
+        handleBoundaryCollision();
+    }, [position, ballSize, handleBoundaryCollision]);
 
     const playZoneStyle = {
         width: `${playZoneDimensions.playZoneWidth}px`,
@@ -175,11 +175,10 @@ const Ball = () => {
                         }}
                     ></div>
                 ))}
-                <Trace position={{x: position.x * playZoneDimensions.playZoneWidth, y: position.y * playZoneDimensions.playZoneHeight}}></Trace>
                 <div
                     style={{
-                        width: `${ballSize}px`,
-                        height: `${ballSize}px`, // Keep ball round
+                        width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                        height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
