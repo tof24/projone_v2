@@ -178,8 +178,8 @@ const Ball = () => {
                 <Trace position={{x: position.x * playZoneDimensions.playZoneWidth, y: position.y * playZoneDimensions.playZoneHeight}}></Trace>
                 <div
                     style={{
-                        width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                        height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                        width: `${ballSize}px`,
+                        height: `${ballSize}px`, // Keep ball round
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
