@@ -201,9 +201,9 @@ const Ball = () => {
                     >
                     </div>
                 ))}
-                {!isPortrait ? <Portrait /> : null}
+                {!isPortrait && isPhone() ? <Portrait /> : null}
 
-                
+
                 {isPhone() && isPortrait (
                     <div>
 
