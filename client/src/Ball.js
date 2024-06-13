@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Trace from "./Trace";
 import "./App.css"
 import {logDOM} from "@testing-library/react";
+import Orientation from "./Orientation";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -13,16 +14,6 @@ const Ball = () => {
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
-
-
-            if (screen.orientation) {
-                screen.orientation.lock('portrait').catch((error) => {
-                    console.error('Error locking orientation:', error);
-                });
-            } else {
-                console.log('Screen orientation API not supported.');
-            }
-   
 
 
 
@@ -192,7 +183,9 @@ const Ball = () => {
                             top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
                             left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
                         }}
-                    ></div>
+                    >
+                    
+                    </div>
                 ))}
                 {isPhone() && (
                     <div
