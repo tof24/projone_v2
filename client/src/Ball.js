@@ -191,7 +191,6 @@ const Ball = () => {
                 {isPhone() && (
                     <div>
                         <Portrait></Portrait>
-
                         <div
                             style={{
                                 width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
