@@ -42,7 +42,17 @@ const Ball = () => {
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
 
-  
+    useEffect(() => {
+    const handleOrientationChange = () => {
+        setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
+    };
+
+    // Initial check
+    handleOrientationChange();
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', handleOrientationChange);
+    });
 
     useEffect(() => {
         const handleResize = () => {
@@ -191,7 +201,23 @@ const Ball = () => {
                     >
                     </div>
                 ))}
+                {!isPortrait ? <Portrait /> : null}
+                {isPhone() && isPortrait (
+                    <div>
 
+                        <div
+                            style={{
+                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                borderRadius: '50%',
+                                backgroundColor: 'red',
+                                position: 'absolute',
+                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                            }}
+                        ></div>
+                    </div>
+                )}
             </div>
         </div>
     );
