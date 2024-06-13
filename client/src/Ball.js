@@ -167,7 +167,7 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
             <div style={playZoneStyle}>
-                {Object.keys(players).map(playerId => (
+                {!isPhone() && Object.keys(players).map(playerId => (
                     <div
                         key={playerId}
                         style={{
