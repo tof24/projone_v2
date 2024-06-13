@@ -17,3 +17,25 @@
   }
 }
 
+body, html, #root, .container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+}
+
+.container {
+  position: relative;
+  overflow: hidden;
+}
+
+.playzone {
+  width: 1080px;
+  height: 1920px;
+  background-color: white;
+  position: relative;
+}
+
