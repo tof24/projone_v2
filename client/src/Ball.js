@@ -28,16 +28,7 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     };
 
-
-    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
-
-    useEffect(() => {
-        const handleResize = () => {
-            setPlayZoneDimensions(calculatePlayZoneDimensions());
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const { playZoneWidth, playZoneHeight } = calculatePlayZoneDimensions();
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
@@ -69,7 +60,6 @@ const Ball = () => {
                     break;
             }
         };
-
 
         const handleDeviceOrientation = (event) => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
@@ -125,11 +115,7 @@ const Ball = () => {
         }, 1000 / 60); // Update every 16.67 milliseconds for 60 FPS
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
-
-    useEffect(() => {
-        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight);
-    }, [position, ballSize, playZoneDimensions]);
+    }, [acceleration, velocity]); // Update when acceleration or velocity changes
 
     const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
         // Check if the ball is crossing the left or right border
@@ -143,9 +129,13 @@ const Ball = () => {
         }
     };
 
+    useEffect(() => {
+        handleBoundaryCollision(playZoneWidth, playZoneHeight);
+    }, [position, ballSize, playZoneWidth, playZoneHeight]);
+
     const playZoneStyle = {
-        width: `${playZoneDimensions.playZoneWidth}px`,
-        height: `${playZoneDimensions.playZoneHeight}px`,
+        width: `${playZoneWidth}px`,
+        height: `${playZoneHeight}px`,
         backgroundColor: 'white',
         position: 'relative',
         overflow: 'hidden'
@@ -160,8 +150,7 @@ const Ball = () => {
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
-            position: 'relative',
-
+            position: 'relative'
         }}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
