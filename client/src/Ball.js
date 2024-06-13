@@ -8,7 +8,7 @@ const Ball = () => {
     const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
-    const ballSize = 0.02; // Normalized size of the ball (2% of play zone dimensions)
+    const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
