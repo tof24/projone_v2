@@ -202,6 +202,7 @@ const Ball = () => {
                     </div>
                 ))}
                 {!isPortrait ? <Portrait /> : null}
+
                 
                 {isPhone() && isPortrait (
                     <div>
