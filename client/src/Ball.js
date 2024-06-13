@@ -5,10 +5,10 @@ import Trace from "./Trace";
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 20, y: 20 });
+    const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
-    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
-    const ballSize = 20; // Size of the ball
+    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
+    const ballSize = 0.02; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
@@ -53,16 +53,16 @@ const Ball = () => {
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.1 })); // Increase acceleration upwards
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.001 })); // Increase acceleration upwards
                     break;
                 case 'ArrowDown':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.1 })); // Increase acceleration downwards
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.001 })); // Increase acceleration downwards
                     break;
                 case 'ArrowLeft':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.1 })); // Increase acceleration leftwards
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.001 })); // Increase acceleration leftwards
                     break;
                 case 'ArrowRight':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.1 })); // Increase acceleration rightwards
+                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.001 })); // Increase acceleration rightwards
                     break;
                 default:
                     break;
@@ -74,12 +74,12 @@ const Ball = () => {
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
 
             // Adjust sensitivity here
-            const sensitivity = 0.01; // Adjust this value to change sensitivity
+            const sensitivity = 0.0001; // Adjust this value to change sensitivity
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
-                x: gamma * sensitivity, // Adjust sensitivity here
-                y: beta * sensitivity // Adjust sensitivity here
+                x: gamma * sensitivity,
+                y: beta * sensitivity
             };
 
             setAcceleration(newAcceleration);
@@ -94,7 +94,7 @@ const Ball = () => {
         };
     }, []);
 
-    const maxVelocity = 10; // Set your desired maximum velocity
+    const maxVelocity = 0.1; // Set your desired maximum velocity
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -126,17 +126,17 @@ const Ball = () => {
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
 
     useEffect(() => {
-        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight);
-    }, [position, ballSize, playZoneDimensions]);
+        handleBoundaryCollision();
+    }, [position, ballSize]);
 
-    const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
+    const handleBoundaryCollision = () => {
         // Check if the ball is crossing the left or right border
-        if (position.x < 0 || position.x + ballSize > playZoneWidth) {
+        if (position.x < 0 || position.x + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
+        if (position.y < 0 || position.y + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
@@ -159,33 +159,32 @@ const Ball = () => {
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
-
         }}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
                     <div
                         key={playerId}
                         style={{
-                            width: `${ballSize}px`,
-                            height: `${ballSize}px`,
+                            width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                            height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
                             borderRadius: '50%',
                             backgroundColor: 'darkolivegreen', // Change color for other players' balls
                             position: 'absolute',
-                            top: `${players[playerId].y}px`,
-                            left: `${players[playerId].x}px`,
+                            top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
+                            left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
                         }}
                     ></div>
                 ))}
-                <Trace position={position}></Trace>
+                <Trace position={{x: position.x * playZoneDimensions.playZoneWidth, y: position.y * playZoneDimensions.playZoneHeight}}></Trace>
                 <div
                     style={{
-                        width: `${ballSize}px`,
-                        height: `${ballSize}px`,
+                        width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                        height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${position.y}px`,
-                        left: `${position.x}px`,
+                        top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                        left: `${position.x * playZoneDimensions.playZoneWidth}px`,
                     }}
                 ></div>
             </div>
