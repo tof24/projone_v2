@@ -4,6 +4,7 @@ import Trace from "./Trace";
 import "./App.css"
 import {logDOM} from "@testing-library/react";
 import Orientation from "./Orientation";
+import Portrait from "./Portrait";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -170,6 +171,7 @@ const Ball = () => {
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
         }} className={"fullscreen-center"}>
+
             <div style={playZoneStyle}>
                 {!isPhone() && Object.keys(players).map(playerId => (
                     <div
@@ -184,21 +186,24 @@ const Ball = () => {
                             left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
                         }}
                     >
-                    
                     </div>
                 ))}
                 {isPhone() && (
-                    <div
-                        style={{
-                            width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                            height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                            borderRadius: '50%',
-                            backgroundColor: 'red',
-                            position: 'absolute',
-                            top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                            left: `${position.x * playZoneDimensions.playZoneWidth}px`,
-                        }}
-                    ></div>
+                    <div>
+                        <Portrait></Portrait>
+
+                        <div
+                            style={{
+                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                borderRadius: '50%',
+                                backgroundColor: 'red',
+                                position: 'absolute',
+                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                            }}
+                        ></div>
+                    </div>
                 )}
             </div>
         </div>

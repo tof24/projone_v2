@@ -22,11 +22,11 @@ const Portrait = () => {
 
     return (
         <div>
-            <h1>Website Content</h1>
+            <h1 style={{color: "white"}}>Website Content</h1>
             {isPortrait ? (
-                <p>Device is in portrait mode.</p>
+                <p style={{color: "white"}}>Device is in portrait mode.</p>
             ) : (
-                <p>Please rotate your device to portrait mode for the best experience.</p>
+                <p style={{color: "white"}}>Please rotate your device to portrait mode for the best experience.</p>
             )}
         </div>
     );
