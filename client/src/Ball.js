@@ -10,11 +10,22 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
 
-    const calculatePlayZoneDimensions = () => {
-        const standardWidth = 1920;
-        const standardHeight = 1080;
+    const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
-        return { playZoneWidth: standardWidth, playZoneHeight: standardHeight };
+    const calculatePlayZoneDimensions = () => {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        let playZoneWidth, playZoneHeight;
+
+        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
+            playZoneWidth = viewportWidth;
+            playZoneHeight = viewportWidth / playZoneAspectRatio;
+        } else {
+            playZoneHeight = viewportHeight;
+            playZoneWidth = viewportHeight * playZoneAspectRatio;
+        }
+
+        return { playZoneWidth, playZoneHeight };
     };
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
@@ -115,20 +126,17 @@ const Ball = () => {
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
 
     useEffect(() => {
-        const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
-        const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
-        const scale = Math.min(scaleX, scaleY);
-        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight, scale);
+        handleBoundaryCollision(playZoneDimensions.playZoneWidth, playZoneDimensions.playZoneHeight);
     }, [position, ballSize, playZoneDimensions]);
 
-    const handleBoundaryCollision = (playZoneWidth, playZoneHeight, scale) => {
+    const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
         // Check if the ball is crossing the left or right border
-        if (position.x * scale < 0 || position.x * scale + ballSize > playZoneWidth) {
+        if (position.x < 0 || position.x + ballSize > playZoneWidth) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y * scale < 0 || position.y * scale + ballSize > playZoneHeight) {
+        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
@@ -141,10 +149,6 @@ const Ball = () => {
         overflow: 'hidden'
     };
 
-    const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
-    const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
-    const scale = Math.min(scaleX, scaleY);
-
     return (
         <div style={{
             width: '100vw',
@@ -154,7 +158,8 @@ const Ball = () => {
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
-            position: 'relative'
+            position: 'relative',
+
         }}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
@@ -166,8 +171,8 @@ const Ball = () => {
                             borderRadius: '50%',
                             backgroundColor: 'darkolivegreen', // Change color for other players' balls
                             position: 'absolute',
-                            top: `${players[playerId].y * scale}px`,
-                            left: `${players[playerId].x * scale}px`,
+                            top: `${players[playerId].y}px`,
+                            left: `${players[playerId].x}px`,
                         }}
                     ></div>
                 ))}
@@ -179,8 +184,8 @@ const Ball = () => {
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${position.y * scale}px`,
-                        left: `${position.x * scale}px`,
+                        top: `${position.y}px`,
+                        left: `${position.x}px`,
                     }}
                 ></div>
             </div>
