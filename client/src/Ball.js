@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
+import "./App.css"
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -159,7 +160,7 @@ const Ball = () => {
             alignItems: 'center',
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
-        }}>
+        }} className={"fullscreen-center"}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
                     <div
