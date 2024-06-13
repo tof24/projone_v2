@@ -10,22 +10,11 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 }); // Initial acceleration is 0
     const ballSize = 20; // Size of the ball
 
-    const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
-
     const calculatePlayZoneDimensions = () => {
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        let playZoneWidth, playZoneHeight;
+        const standardWidth = 1920;
+        const standardHeight = 1080;
 
-        if (viewportWidth / viewportHeight < playZoneAspectRatio) {
-            playZoneWidth = viewportWidth;
-            playZoneHeight = viewportWidth / playZoneAspectRatio;
-        } else {
-            playZoneHeight = viewportHeight;
-            playZoneWidth = viewportHeight * playZoneAspectRatio;
-        }
-
-        return { playZoneWidth, playZoneHeight };
+        return { playZoneWidth: standardWidth, playZoneHeight: standardHeight };
     };
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
@@ -130,13 +119,17 @@ const Ball = () => {
     }, [position, ballSize, playZoneDimensions]);
 
     const handleBoundaryCollision = (playZoneWidth, playZoneHeight) => {
+        const scaleX = window.innerWidth / playZoneDimensions.playZoneWidth;
+        const scaleY = window.innerHeight / playZoneDimensions.playZoneHeight;
+        const scale = Math.min(scaleX, scaleY);
+
         // Check if the ball is crossing the left or right border
-        if (position.x < 0 || position.x + ballSize > playZoneWidth) {
+        if (position.x * scale < 0 || position.x * scale + ballSize > playZoneWidth) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
-        if (position.y < 0 || position.y + ballSize > playZoneHeight) {
+        if (position.y * scale < 0 || position.y * scale + ballSize > playZoneHeight) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     };
@@ -170,8 +163,8 @@ const Ball = () => {
                             borderRadius: '50%',
                             backgroundColor: 'darkolivegreen', // Change color for other players' balls
                             position: 'absolute',
-                            top: `${players[playerId].y}px`,
-                            left: `${players[playerId].x}px`,
+                            top: `${players[playerId].y * scale}px`,
+                            left: `${players[playerId].x * scale}px`,
                         }}
                     ></div>
                 ))}
@@ -183,8 +176,8 @@ const Ball = () => {
                         borderRadius: '50%',
                         backgroundColor: 'red',
                         position: 'absolute',
-                        top: `${position.y}px`,
-                        left: `${position.x}px`,
+                        top: `${position.y * scale}px`,
+                        left: `${position.x * scale}px`,
                     }}
                 ></div>
             </div>
