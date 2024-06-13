@@ -13,6 +13,7 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
+    const [isPortrait, setIsPortrait] = useState(true);
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
@@ -40,6 +41,16 @@ const Ball = () => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
+
+    const handleOrientationChange = () => {
+        setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
+    };
+
+    // Initial check
+    handleOrientationChange();
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', handleOrientationChange);
 
     useEffect(() => {
         const handleResize = () => {
@@ -188,9 +199,27 @@ const Ball = () => {
                     >
                     </div>
                 ))}
-                {isPhone() && (
+                {isPhone() && !isPortrait && Object.keys(players).map(playerId => (
                     <div>
                         <Portrait></Portrait>
+                        <div
+                            key={playerId}
+                            style={{
+                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                borderRadius: '50%',
+                                backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                                position: 'absolute',
+                                top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
+                                left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
+                            }}
+                        >
+                        </div>
+                    </div>
+                ))}
+                {isPhone() && isPortrait (
+                    <div>
+
                         <div
                             style={{
                                 width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
