@@ -31,6 +31,11 @@ const Ball = () => {
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions);
 
+    const isPhone = useCallback(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    }, []);
+
     useEffect(() => {
         const handleResize = () => {
             setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -176,17 +181,19 @@ const Ball = () => {
                         }}
                     ></div>
                 ))}
-                <div
-                    style={{
-                        width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                        height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                        borderRadius: '50%',
-                        backgroundColor: 'red',
-                        position: 'absolute',
-                        top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                        left: `${position.x * playZoneDimensions.playZoneWidth}px`,
-                    }}
-                ></div>
+                {isPhone() && (
+                    <div
+                        style={{
+                            width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                            height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                            borderRadius: '50%',
+                            backgroundColor: 'red',
+                            position: 'absolute',
+                            top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                            left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                        }}
+                    ></div>
+                )}
             </div>
         </div>
     );
