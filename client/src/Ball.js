@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 import "./App.css"
+import {logDOM} from "@testing-library/react";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -12,6 +13,22 @@ const Ball = () => {
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
+
+    useEffect(() => {
+        const lockOrientation = () => {
+            if (screen.orientation) {
+                screen.orientation.lock('portrait').catch((error) => {
+                    console.error('Error locking orientation:', error);
+                });
+            } else {
+                console.log('Screen orientation API not supported.');
+            }
+        };
+
+        lockOrientation();
+
+       console.log("isLocked");
+    }, []);
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
