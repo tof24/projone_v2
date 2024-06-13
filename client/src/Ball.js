@@ -201,24 +201,8 @@ const Ball = () => {
                     >
                     </div>
                 ))}
-                {isPhone() && !isPortrait && Object.keys(players).map(playerId => (
-                    <div>
-                        <Portrait></Portrait>
-                        <div
-                            key={playerId}
-                            style={{
-                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                                borderRadius: '50%',
-                                backgroundColor: 'darkolivegreen', // Change color for other players' balls
-                                position: 'absolute',
-                                top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
-                                left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
-                            }}
-                        >
-                        </div>
-                    </div>
-                ))}
+                {!isPortrait ? <Portrait /> : null}
+                
                 {isPhone() && isPortrait (
                     <div>
 
