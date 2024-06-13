@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
+import "./App.css";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -28,9 +29,6 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     };
 
-    function isDesktopOrLandscape() {
-        return window.matchMedia("(min-width: 1024px) and (orientation: landscape)").matches;
-    }
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions());
 
@@ -72,7 +70,7 @@ const Ball = () => {
                     break;
             }
         };
-        const isDesktopLandscape = isDesktopOrLandscape();
+
 
         const handleDeviceOrientation = (event) => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
@@ -155,17 +153,7 @@ const Ball = () => {
     };
 
     return (
-        <div style={{
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'black',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden',  // Prevent scrolling
-            position: 'relative',
-            //////////////...(isDesktopLandscape ? { transform: 'rotate(90deg)', transformOrigin: 'center' } : {})
-        }}>
+        <div className={"fullscreen-center"}>
             <div style={playZoneStyle}>
                 {Object.keys(players).map(playerId => (
                     <div
