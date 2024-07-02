@@ -123,15 +123,15 @@ const Ball = () => {
 
             // Update position based on velocity
             setPosition(prevPosition => ({
-                x: prevPosition.x + newVelocity.x * 0.95,
-                y: prevPosition.y + newVelocity.y * 0.95
+                x: prevPosition.x + newVelocity.x ,
+                y: prevPosition.y + newVelocity.y 
             }));
 
             // Emit the position of the local player's ball to the server
             if (socket) {
                 socket.emit('playerMove', { position });
             }
-        }, 1000 / 60); // Update every 16.67 milliseconds for 60 FPS
+        }, 1000 / 100); // Update every 16.67 milliseconds for 100 FPS
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
