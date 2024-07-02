@@ -2,9 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 import "./App.css"
-import {logDOM} from "@testing-library/react";
-import Orientation from "./Orientation";
-import Portrait from "./Portrait";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -13,11 +10,8 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
-    const [isPortrait, setIsPortrait] = useState(true);
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
-
-
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -41,18 +35,6 @@ const Ball = () => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
-
-    useEffect(() => {
-        const handleOrientationChange = () => {
-            setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
-        };
-
-        // Initial check
-        handleOrientationChange();
-
-        // Listen for orientation changes
-        window.addEventListener('orientationchange', handleOrientationChange);
-    });
 
     useEffect(() => {
         const handleResize = () => {
@@ -184,10 +166,8 @@ const Ball = () => {
             overflow: 'hidden',  // Prevent scrolling
             position: 'relative',
         }} className={"fullscreen-center"}>
-
-
             <div style={playZoneStyle}>
-                {!isPhone() && Object.keys(players).map(playerId => (
+                {Object.keys(players).map(playerId => (
                     <div
                         key={playerId}
                         style={{
@@ -199,27 +179,20 @@ const Ball = () => {
                             top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
                             left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
                         }}
-                    >
-                    </div>
+                    ></div>
                 ))}
-                {!isPortrait && isPhone() ? <Portrait /> : null}
-
-
-                {isPhone() && isPortrait (
-                    <div>
-
-                        <div
-                            style={{
-                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                                borderRadius: '50%',
-                                backgroundColor: 'red',
-                                position: 'absolute',
-                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
-                            }}
-                        ></div>
-                    </div>
+                {isPhone() && (
+                    <div
+                        style={{
+                            width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                            height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                            borderRadius: '50%',
+                            backgroundColor: 'red',
+                            position: 'absolute',
+                            top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                            left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                        }}
+                    ></div>
                 )}
             </div>
         </div>
