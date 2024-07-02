@@ -16,8 +16,6 @@ const Ball = () => {
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
-
-
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
@@ -34,12 +32,11 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     }, [playZoneAspectRatio]);
 
-    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions);
+    const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
 
-    const isPhone = useCallback(() => {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    }, []);
+    useEffect(() => {
+        setPlayZoneDimensions(calculatePlayZoneDimensions());
+    }, [calculatePlayZoneDimensions]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -124,7 +121,7 @@ const Ball = () => {
             // Update position based on velocity
             setPosition(prevPosition => ({
                 x: prevPosition.x + newVelocity.x ,
-                y: prevPosition.y + newVelocity.y 
+                y: prevPosition.y + newVelocity.y
             }));
 
             // Emit the position of the local player's ball to the server
@@ -153,12 +150,17 @@ const Ball = () => {
     }, [position, ballSize, handleBoundaryCollision]);
 
     const playZoneStyle = {
-        width: `${playZoneDimensions.playZoneWidth}px`,
-        height: `${playZoneDimensions.playZoneHeight}px`,
+        width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+        height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
         position: 'relative',
         overflow: 'hidden'
     };
+
+    const isPhone = useCallback(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    }, []);
 
     return (
         <div style={{
@@ -177,13 +179,13 @@ const Ball = () => {
                     <div
                         key={playerId}
                         style={{
-                            width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                            height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
                             borderRadius: '50%',
                             backgroundColor: 'darkolivegreen', // Change color for other players' balls
                             position: 'absolute',
-                            top: `${players[playerId].y * playZoneDimensions.playZoneHeight}px`,
-                            left: `${players[playerId].x * playZoneDimensions.playZoneWidth}px`,
+                            top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                            left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                         }}
                     >
                     </div>
@@ -194,13 +196,13 @@ const Ball = () => {
 
                         <div
                             style={{
-                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
                                 borderRadius: '50%',
                                 backgroundColor: 'red',
                                 position: 'absolute',
-                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                             }}
                         ></div>
                     </div>
