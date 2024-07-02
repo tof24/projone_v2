@@ -185,6 +185,7 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
 
+
             <div style={playZoneStyle}>
                 {!isPhone() && Object.keys(players).map(playerId => (
                     <div
@@ -204,27 +205,25 @@ const Ball = () => {
                 {!isPortrait && isPhone() ? <Portrait /> : null}
 
 
+                {isPhone() && isPortrait (
+                    <div>
 
-               
-                    {isPhone() && isPortrait (
-                        <div>
-
-                            <div
-                                style={{
-                                    width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                                    height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                                    borderRadius: '50%',
-                                    backgroundColor: 'red',
-                                    position: 'absolute',
-                                    top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                                    left: `${position.x * playZoneDimensions.playZoneWidth}px`,
-                                }}
-                            ></div>
-                        </div>
-                    )}
+                        <div
+                            style={{
+                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                borderRadius: '50%',
+                                backgroundColor: 'red',
+                                position: 'absolute',
+                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                            }}
+                        ></div>
                     </div>
-                    </div>
-                    );
-                };
+                )}
+            </div>
+        </div>
+    );
+};
 
-                export default Ball;
+export default Ball;
