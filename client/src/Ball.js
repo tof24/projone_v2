@@ -43,6 +43,18 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
+        const handleOrientationChange = () => {
+            setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
+        };
+
+        // Initial check
+        handleOrientationChange();
+
+        // Listen for orientation changes
+        window.addEventListener('orientationchange', handleOrientationChange);
+    });
+
+    useEffect(() => {
         const handleResize = () => {
             setPlayZoneDimensions(calculatePlayZoneDimensions());
         };
@@ -189,9 +201,26 @@ const Ball = () => {
                     >
                     </div>
                 ))}
-            </div>
-        </div>
-    );
+
+{isPhone()(
+    <div>
+
+        <div
+            style={{
+                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                borderRadius: '50%',
+                backgroundColor: 'red',
+                position: 'absolute',
+                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+            }}
+        ></div>
+    </div>
+)}
+</div>
+</div>
+);
 };
 
 export default Ball;
