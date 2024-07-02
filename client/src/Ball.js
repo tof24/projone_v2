@@ -43,15 +43,15 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-    const handleOrientationChange = () => {
-        setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
-    };
+        const handleOrientationChange = () => {
+            setIsPortrait(window.matchMedia('(orientation: portrait)').matches);
+        };
 
-    // Initial check
-    handleOrientationChange();
+        // Initial check
+        handleOrientationChange();
 
-    // Listen for orientation changes
-    window.addEventListener('orientationchange', handleOrientationChange);
+        // Listen for orientation changes
+        window.addEventListener('orientationchange', handleOrientationChange);
     });
 
     useEffect(() => {
@@ -201,26 +201,30 @@ const Ball = () => {
                     >
                     </div>
                 ))}
-                {!isPortrait ? <Portrait /> : null}
-                {isPhone() && isPortrait (
-                    <div>
+                {!isPortrait && isPhone() ? <Portrait /> : null}
 
-                        <div
-                            style={{
-                                width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
-                                height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
-                                borderRadius: '50%',
-                                backgroundColor: 'red',
-                                position: 'absolute',
-                                top: `${position.y * playZoneDimensions.playZoneHeight}px`,
-                                left: `${position.x * playZoneDimensions.playZoneWidth}px`,
-                            }}
-                        ></div>
+
+
+               
+                    {isPhone() && isPortrait (
+                        <div>
+
+                            <div
+                                style={{
+                                    width: `${ballSize * playZoneDimensions.playZoneWidth}px`,
+                                    height: `${ballSize * playZoneDimensions.playZoneWidth}px`, // Keep ball round
+                                    borderRadius: '50%',
+                                    backgroundColor: 'red',
+                                    position: 'absolute',
+                                    top: `${position.y * playZoneDimensions.playZoneHeight}px`,
+                                    left: `${position.x * playZoneDimensions.playZoneWidth}px`,
+                                }}
+                            ></div>
+                        </div>
+                    )}
                     </div>
-                )}
-            </div>
-        </div>
-    );
-};
+                    </div>
+                    );
+                };
 
-export default Ball;
+                export default Ball;
