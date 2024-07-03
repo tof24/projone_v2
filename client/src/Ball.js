@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
-import "./App.css"
-import { logDOM } from "@testing-library/react";
+import "./App.css";
 import Orientation from "./Orientation";
 import Portrait from "./Portrait";
 
@@ -23,26 +22,22 @@ const Ball = () => {
         let playZoneWidth, playZoneHeight;
 
         if (viewportWidth / viewportHeight < playZoneAspectRatio) {
-            playZoneWidth = viewportWidth;
-            playZoneHeight = viewportWidth / playZoneAspectRatio;
+            playZoneWidth = viewportWidth * scalingFactor;
+            playZoneHeight = (viewportWidth * scalingFactor) / playZoneAspectRatio;
         } else {
-            playZoneHeight = viewportHeight;
-            playZoneWidth = viewportHeight * playZoneAspectRatio;
+            playZoneHeight = viewportHeight * scalingFactor;
+            playZoneWidth = (viewportHeight * scalingFactor) * playZoneAspectRatio;
         }
-
-        // Apply scaling factor
-        playZoneWidth *= scalingFactor;
-        playZoneHeight *= scalingFactor;
 
         // Ensure it does not exceed viewport dimensions
         if (playZoneWidth > viewportWidth) {
             playZoneWidth = viewportWidth;
-            playZoneHeight = playZoneWidth / playZoneAspectRatio;
+            playZoneHeight = viewportWidth / playZoneAspectRatio;
         }
 
         if (playZoneHeight > viewportHeight) {
             playZoneHeight = viewportHeight;
-            playZoneWidth = playZoneHeight * playZoneAspectRatio;
+            playZoneWidth = viewportHeight * playZoneAspectRatio;
         }
 
         return { playZoneWidth, playZoneHeight };
