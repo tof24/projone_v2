@@ -58,31 +58,14 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y - 0.001 })); // Increase acceleration upwards
-                    break;
-                case 'ArrowDown':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, y: prevAcceleration.y + 0.001 })); // Increase acceleration downwards
-                    break;
-                case 'ArrowLeft':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x - 0.001 })); // Increase acceleration leftwards
-                    break;
-                case 'ArrowRight':
-                    setAcceleration(prevAcceleration => ({ ...prevAcceleration, x: prevAcceleration.x + 0.001 })); // Increase acceleration rightwards
-                    break;
-                default:
-                    break;
-            }
-        };
+
 
         const handleDeviceOrientation = (event) => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
 
             // Adjust sensitivity here
-            const sensitivity = 0.00001; // Adjust this value to change sensitivity
+            const sensitivity = 0.000005; // Adjust this value to change sensitivity
 
             // Calculate acceleration based on gyroscope data
             const newAcceleration = {
@@ -94,10 +77,10 @@ const Ball = () => {
         };
 
         window.addEventListener('deviceorientation', handleDeviceOrientation);
-        window.addEventListener('keydown', handleKeyDown);
+
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
+
             window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
     }, []);
@@ -154,7 +137,8 @@ const Ball = () => {
         height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        top:'0',
     };
 
     const isPhone = useCallback(() => {
