@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 import "./App.css"
-import { logDOM } from "@testing-library/react";
+import {logDOM} from "@testing-library/react";
 import Orientation from "./Orientation";
 import Portrait from "./Portrait";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
-    const [velocity, setVelocity] = useState({ x: 0, y: 0 });
-    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
+    const [position, setPosition] = useState({x: 0.02, y: 0.02}); // Normalized initial position (0.02 of play zone dimensions)
+    const [velocity, setVelocity] = useState({x: 0, y: 0});
+    const [acceleration, setAcceleration] = useState({x: 0, y: 0});
+    const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
-    const ballSize = 0.04; // Normalized size of the ball (4% of play zone dimensions)
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
     const calculatePlayZoneDimensions = useCallback(() => {
@@ -29,7 +29,7 @@ const Ball = () => {
             playZoneWidth = viewportHeight * playZoneAspectRatio;
         }
 
-        return { playZoneWidth, playZoneHeight };
+        return {playZoneWidth, playZoneHeight};
     }, [playZoneAspectRatio]);
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
@@ -75,7 +75,6 @@ const Ball = () => {
         };
 
         window.addEventListener('deviceorientation', handleDeviceOrientation);
-
         return () => {
             window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
@@ -105,9 +104,9 @@ const Ball = () => {
 
             // Emit the position of the local player's ball to the server
             if (socket) {
-                socket.emit('playerMove', { position });
+                socket.emit('playerMove', {position});
             }
-        }, 1000 / 100); // Update every 10 milliseconds for 100 FPS
+        }, 1000 / 100); // Update every 16.67 milliseconds for 100 FPS
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
@@ -115,12 +114,12 @@ const Ball = () => {
     const handleBoundaryCollision = useCallback(() => {
         // Check if the ball is crossing the left or right border
         if (position.x < 0 || position.x + ballSize > 1) {
-            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
+            setVelocity(prevVelocity => ({...prevVelocity, x: -prevVelocity.x}));
         }
 
         // Check if the ball is crossing the top or bottom border
         if (position.y < 0 || position.y + ballSize > 1) {
-            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
+            setVelocity(prevVelocity => ({...prevVelocity, y: -prevVelocity.y}));
         }
     }, [position, ballSize]);
 
@@ -129,24 +128,12 @@ const Ball = () => {
     }, [position, ballSize, handleBoundaryCollision]);
 
     const playZoneStyle = {
-        width: '100%',
-        height: '100%',
+        width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+        height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
-        position: 'absolute',
+        position: 'relative',
         overflow: 'hidden',
-
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    };
-
-    const playZoneInnerStyle = {
-        width: '100%',
-        height: '100%',
-        maxWidth: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-        maxHeight: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-        backgroundColor: 'white',
-        position: 'relative'
+        top: '0',
     };
 
     const isPhone = useCallback(() => {
@@ -167,42 +154,43 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <div style={playZoneStyle}>
-                <div style={playZoneInnerStyle}>
-                    {!isPhone() && Object.keys(players).map(playerId => (
+                {!isPhone() && Object.keys(players).map(playerId => (
+                    <div
+                        key={playerId}
+                        style={{
+                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                            borderRadius: '50%',
+                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                            position: 'absolute',
+                            top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                            left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                        }}
+                    >
+                    </div>
+                ))}
+                {isPhone() && (
+                    <div>
+                        <Portrait></Portrait>
+
                         <div
-                            key={playerId}
                             style={{
                                 width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                                 height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
                                 borderRadius: '50%',
-                                backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                                backgroundColor: 'red',
                                 position: 'absolute',
-                                top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                             }}
-                        >
-                        </div>
-                    ))}
-                    {isPhone() && (
-                        <div>
-                            <Portrait></Portrait>
-                            <div
-                                style={{
-                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
-                                    borderRadius: '50%',
-                                    backgroundColor: 'red',
-                                    position: 'absolute',
-                                    top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                    left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                }}
-                            ></div>
-                        </div>
-                    )}
-                </div>
+                        ></div>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
+
 export default Ball;
+
