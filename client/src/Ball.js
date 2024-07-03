@@ -131,11 +131,9 @@ const Ball = () => {
         width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
         height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
-        position: 'absolute',
+        position: 'relative',
         overflow: 'hidden',
-        top: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneHeight / 2}px)` : '0',
-        left: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneWidth / 2}px)` : '0',
-
+        top: '0',
     };
 
     const isPhone = useCallback(() => {
@@ -145,8 +143,8 @@ const Ball = () => {
 
     return (
         <div style={{
-            width: '120vh',
-            height: '100vw',
+            width: '100vw',
+            height: '100vh',
             backgroundColor: 'black',
             display: 'flex',
             justifyContent: 'center',
