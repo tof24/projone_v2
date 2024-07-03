@@ -12,7 +12,7 @@ const Ball = () => {
     const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
-    const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
+    const ballSize = 0.04; // Normalized size of the ball (4% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
 
@@ -107,7 +107,7 @@ const Ball = () => {
             if (socket) {
                 socket.emit('playerMove', { position });
             }
-        }, 1000 / 100); // Update every 16.67 milliseconds for 100 FPS
+        }, 1000 / 100); // Update every 10 milliseconds for 100 FPS
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
@@ -129,13 +129,23 @@ const Ball = () => {
     }, [position, ballSize, handleBoundaryCollision]);
 
     const playZoneStyle = {
-        width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-        height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+        width: '100%',
+        height: '100%',
         backgroundColor: 'white',
         position: 'absolute',
         overflow: 'hidden',
-        top: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneHeight / 2}px)` : '0',
-        left: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneWidth / 2}px)` : '0',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    };
+
+    const playZoneInnerStyle = {
+        width: '100%',
+        height: '100%',
+        maxWidth: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+        maxHeight: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+        backgroundColor: 'white',
+        position: 'relative'
     };
 
     const isPhone = useCallback(() => {
@@ -156,38 +166,39 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <div style={playZoneStyle}>
-                {!isPhone() && Object.keys(players).map(playerId => (
-                    <div
-                        key={playerId}
-                        style={{
-                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
-                            borderRadius: '50%',
-                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
-                            position: 'absolute',
-                            top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                            left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                        }}
-                    >
-                    </div>
-                ))}
-                {isPhone() && (
-                    <div>
-                        <Portrait></Portrait>
-
+                <div style={playZoneInnerStyle}>
+                    {!isPhone() && Object.keys(players).map(playerId => (
                         <div
+                            key={playerId}
                             style={{
                                 width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                                 height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
                                 borderRadius: '50%',
-                                backgroundColor: 'red',
+                                backgroundColor: 'darkolivegreen', // Change color for other players' balls
                                 position: 'absolute',
-                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                             }}
-                        ></div>
-                    </div>
-                )}
+                        >
+                        </div>
+                    ))}
+                    {isPhone() && (
+                        <div>
+                            <Portrait></Portrait>
+                            <div
+                                style={{
+                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                                    borderRadius: '50%',
+                                    backgroundColor: 'red',
+                                    position: 'absolute',
+                                    top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                    left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                }}
+                            ></div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
