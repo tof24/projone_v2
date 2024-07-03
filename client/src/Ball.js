@@ -134,7 +134,8 @@ const Ball = () => {
         backgroundColor: 'white',
         position: 'absolute',
         overflow: 'hidden',
-        top: '0',
+        top: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneHeight / 2}px)` : '0',
+        left: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneWidth / 2}px)` : '0',
     };
 
     const isPhone = useCallback(() => {
