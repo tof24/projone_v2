@@ -15,7 +15,7 @@ const Ball = () => {
     const ballSize = 0.04; // Normalized size of the ball (4% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
-    const scalingFactor = 1.8; // Scaling factor to increase the size by 20%
+    const scalingFactor = 2; // Scaling factor to increase the size by 20%
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
