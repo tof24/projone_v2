@@ -136,7 +136,7 @@ const Ball = () => {
         width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
         height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
-        position: 'relative',
+        position: 'absolute',
         overflow: 'hidden',
         top:'0',
     };
