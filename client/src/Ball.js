@@ -15,6 +15,7 @@ const Ball = () => {
     const ballSize = 0.04; // Normalized size of the ball (4% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
+    const scalingFactor = 1.2; // Scaling factor to increase the size by 20%
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -29,8 +30,16 @@ const Ball = () => {
             playZoneWidth = viewportHeight * playZoneAspectRatio;
         }
 
+        // Apply scaling factor
+        playZoneWidth *= scalingFactor;
+        playZoneHeight *= scalingFactor;
+
+        // Ensure it does not exceed viewport dimensions
+        playZoneWidth = Math.min(playZoneWidth, viewportWidth);
+        playZoneHeight = Math.min(playZoneHeight, viewportHeight);
+
         return { playZoneWidth, playZoneHeight };
-    }, [playZoneAspectRatio]);
+    }, [playZoneAspectRatio, scalingFactor]);
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
 
@@ -129,23 +138,13 @@ const Ball = () => {
     }, [position, ballSize, handleBoundaryCollision]);
 
     const playZoneStyle = {
-        width: '100%',
-        height: '100%',
+        width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+        height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
         backgroundColor: 'white',
         position: 'absolute',
         overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    };
-
-    const playZoneInnerStyle = {
-        width: '100%',
-        height: '100%',
-        maxWidth: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-        maxHeight: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-        backgroundColor: 'white',
-        position: 'relative'
+        top: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneHeight / 2}px)` : '0',
+        left: playZoneDimensions ? `calc(50% - ${playZoneDimensions.playZoneWidth / 2}px)` : '0',
     };
 
     const isPhone = useCallback(() => {
@@ -166,39 +165,37 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <div style={playZoneStyle}>
-                <div style={playZoneInnerStyle}>
-                    {!isPhone() && Object.keys(players).map(playerId => (
+                {!isPhone() && Object.keys(players).map(playerId => (
+                    <div
+                        key={playerId}
+                        style={{
+                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                            borderRadius: '50%',
+                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                            position: 'absolute',
+                            top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                            left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                        }}
+                    >
+                    </div>
+                ))}
+                {isPhone() && (
+                    <div>
+                        <Portrait></Portrait>
                         <div
-                            key={playerId}
                             style={{
                                 width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                                 height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
                                 borderRadius: '50%',
-                                backgroundColor: 'darkolivegreen', // Change color for other players' balls
+                                backgroundColor: 'red',
                                 position: 'absolute',
-                                top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                             }}
-                        >
-                        </div>
-                    ))}
-                    {isPhone() && (
-                        <div>
-                            <Portrait></Portrait>
-                            <div
-                                style={{
-                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
-                                    borderRadius: '50%',
-                                    backgroundColor: 'red',
-                                    position: 'absolute',
-                                    top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                    left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                }}
-                            ></div>
-                        </div>
-                    )}
-                </div>
+                        ></div>
+                    </div>
+                )}
             </div>
         </div>
     );
