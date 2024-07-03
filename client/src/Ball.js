@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import Trace from "./Trace";
 import "./App.css"
-import {logDOM} from "@testing-library/react";
+import { logDOM } from "@testing-library/react";
 import Orientation from "./Orientation";
 import Portrait from "./Portrait";
 
@@ -58,8 +58,6 @@ const Ball = () => {
     }, []);
 
     useEffect(() => {
-
-
         const handleDeviceOrientation = (event) => {
             const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
             const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
@@ -78,9 +76,7 @@ const Ball = () => {
 
         window.addEventListener('deviceorientation', handleDeviceOrientation);
 
-
         return () => {
-
             window.removeEventListener('deviceorientation', handleDeviceOrientation);
         };
     }, []);
@@ -103,7 +99,7 @@ const Ball = () => {
 
             // Update position based on velocity
             setPosition(prevPosition => ({
-                x: prevPosition.x + newVelocity.x ,
+                x: prevPosition.x + newVelocity.x,
                 y: prevPosition.y + newVelocity.y
             }));
 
@@ -138,7 +134,7 @@ const Ball = () => {
         backgroundColor: 'white',
         position: 'absolute',
         overflow: 'hidden',
-        top:'0',
+        top: '0',
     };
 
     const isPhone = useCallback(() => {
