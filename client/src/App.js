@@ -7,6 +7,7 @@ import "./App.css"
 function App() {
   return (
       <div>
+          <p style={{ color: "white" }}>teste</p>
         <Ball></Ball>
       </div>
   );
