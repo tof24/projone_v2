@@ -171,7 +171,7 @@ const Ball = () => {
                 ))}
                 {isPhone() && (
                     <div>
-                        <Portrait></Portrait>
+
 
                         <div
                             style={{
