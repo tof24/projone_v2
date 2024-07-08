@@ -5,12 +5,13 @@ import Portrait from "./Portrait";
 import "./App.css"
 import React, {useCallback} from "react";
 
-const isPhone = useCallback(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-}, []);
+
 
 function App() {
+    const isPhone = useCallback(() => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    }, []);
   return (
       <div>
           {isPhone() && (
