@@ -133,48 +133,30 @@ const Ball = () => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        const draw = () => {
+        const drawBall = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (isPhone()) {
-                // Draw trail
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(position.x * canvas.width, position.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (isDrawingTrail) {
                 trail.forEach(trailPosition => {
                     ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
                     ctx.beginPath();
                     ctx.arc(trailPosition.x * canvas.width, trailPosition.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
                     ctx.fill();
                 });
-
-                // Draw player ball
-                ctx.fillStyle = 'red';
-                ctx.beginPath();
-                ctx.arc(position.x * canvas.width, position.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                // Draw other players
-                Object.keys(players).forEach(playerId => {
-                    const player = players[playerId];
-                    player.trail.forEach(trailPosition => {
-                        ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
-                        ctx.beginPath();
-                        ctx.arc(trailPosition.x * canvas.width, trailPosition.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    });
-
-                    ctx.fillStyle = 'darkolivegreen';
-                    ctx.beginPath();
-                    ctx.arc(player.position.x * canvas.width, player.position.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
-                    ctx.fill();
-                });
             }
         };
 
         const animationFrameId = requestAnimationFrame(() => {
-            draw();
+            drawBall();
         });
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [players, position, trail, isPhone, ballSize]);
+    }, [position, trail, isDrawingTrail, ballSize]);
 
     const isPhone = useCallback(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
