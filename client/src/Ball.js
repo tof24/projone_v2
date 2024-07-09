@@ -197,7 +197,7 @@ const Ball = () => {
                                     position: 'absolute',
                                     top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
                                     left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.5, // Make the trail semi-transparent
+                                    opacity: 0.1, // Make the trail semi-transparent
                                 }}
                             />
                         ))}
