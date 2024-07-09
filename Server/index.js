@@ -7,7 +7,6 @@ const cors = require('cors');
 
 const app = express();
 
-// Configure CORS for regular HTTP requests
 app.use(cors());
 
 const server = http.createServer(app);
@@ -23,17 +22,19 @@ let players = {};
 io.on('connection', (socket) => {
     console.log('A user connected');
 
-    // Assign a unique ID to the player
     const playerId = socket.id;
-    players[playerId] = { x: 20, y: 20 }; // Initial position
+    players[playerId] = { position: { x: 20, y: 20 }, trail: [] }; // Initial position and empty trail
 
-    // Emit player positions to all clients
     io.emit('playerPositions', players);
 
-    // Handle player movement
     socket.on('playerMove', (data) => {
-        players[playerId] = data.position;
-        io.emit('playerPositions', players);
+        if (players[playerId]) {
+            players[playerId].position = data.position;
+            if (data.isDrawingTrail) {
+                players[playerId].trail.push(data.position);
+            }
+            io.emit('playerPositions', players);
+        }
     });
 
     socket.on('disconnect', () => {

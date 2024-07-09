@@ -5,9 +5,9 @@ import "./App.css"
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({x: 0.02, y: 0.02}); // Normalized initial position (0.02 of play zone dimensions)
-    const [velocity, setVelocity] = useState({x: 0, y: 0});
-    const [acceleration, setAcceleration] = useState({x: 0, y: 0});
+    const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
+    const [velocity, setVelocity] = useState({ x: 0, y: 0 });
+    const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]); // State for the trail coordinates
     const [isDrawingTrail, setIsDrawingTrail] = useState(false); // State to track if the trail should be drawn
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
@@ -27,7 +27,7 @@ const Ball = () => {
             playZoneWidth = viewportHeight * playZoneAspectRatio;
         }
 
-        return {playZoneWidth, playZoneHeight};
+        return { playZoneWidth, playZoneHeight };
     }, [playZoneAspectRatio]);
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
@@ -82,49 +82,42 @@ const Ball = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            // Update velocity based on acceleration
             let newVelocity = {
                 x: velocity.x + acceleration.x,
                 y: velocity.y + acceleration.y
             };
 
-            // Clamp velocity to stay within the maximum allowed value
             newVelocity.x = Math.min(Math.max(newVelocity.x, -maxVelocity), maxVelocity);
             newVelocity.y = Math.min(Math.max(newVelocity.y, -maxVelocity), maxVelocity);
 
             setVelocity(newVelocity);
 
-            // Update position based on velocity
             setPosition(prevPosition => {
                 const newPosition = {
                     x: prevPosition.x + newVelocity.x,
                     y: prevPosition.y + newVelocity.y
                 };
 
-                // Add to trail if drawing
                 if (isDrawingTrail) {
                     setTrail(prevTrail => [...prevTrail, newPosition]);
                 }
 
+                if (socket) {
+                    socket.emit('playerMove', { position: newPosition, isDrawingTrail });
+                }
+
                 return newPosition;
             });
-
-            // Emit the position of the local player's ball to the server
-            if (socket) {
-                socket.emit('playerMove', { position });
-            }
-        }, 1000 / 100); // Update every 16.67 milliseconds for 100 FPS
+        }, 1000 / 100);
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity, isDrawingTrail, socket]); // Update when acceleration, velocity, or isDrawingTrail changes
+    }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
-        // Check if the ball is crossing the left or right border
         if (position.x < 0 || position.x + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
-        // Check if the ball is crossing the top or bottom border
         if (position.y < 0 || position.y + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
@@ -148,11 +141,11 @@ const Ball = () => {
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
 
-    const handleMouseDown = () => {
+    const handleTouchStart = () => {
         setIsDrawingTrail(true);
     };
 
-    const handleMouseUp = () => {
+    const handleTouchEnd = () => {
         setIsDrawingTrail(false);
     };
 
@@ -164,24 +157,40 @@ const Ball = () => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            overflow: 'hidden',  // Prevent scrolling
+            overflow: 'hidden',
             position: 'relative',
         }} className={"fullscreen-center"}>
 
             <div style={playZoneStyle}>
                 {!isPhone() && Object.keys(players).map(playerId => (
-                    <div
-                        key={playerId}
-                        style={{
-                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
-                            borderRadius: '50%',
-                            backgroundColor: 'darkolivegreen', // Change color for other players' balls
-                            position: 'absolute',
-                            top: `${players[playerId].y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                            left: `${players[playerId].x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                        }}
-                    >
+                    <div key={playerId}>
+                        {players[playerId].trail.map((trailPosition, index) => (
+                            <div
+                                key={index}
+                                style={{
+                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    borderRadius: '50%',
+                                    backgroundColor: 'blue',
+                                    position: 'absolute',
+                                    top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                    left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    opacity: 0.5,
+                                }}
+                            />
+                        ))}
+                        <div
+                            style={{
+                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                borderRadius: '50%',
+                                backgroundColor: 'darkolivegreen',
+                                position: 'absolute',
+                                top: `${players[playerId].position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${players[playerId].position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            }}
+                        >
+                        </div>
                     </div>
                 ))}
                 {isPhone() && (
@@ -191,20 +200,20 @@ const Ball = () => {
                                 key={index}
                                 style={{
                                     width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                                     borderRadius: '50%',
-                                    backgroundColor: 'blue', // Color for the trail
+                                    backgroundColor: 'blue',
                                     position: 'absolute',
                                     top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
                                     left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.1, // Make the trail semi-transparent
+                                    opacity: 0.5,
                                 }}
                             />
                         ))}
                         <div
                             style={{
                                 width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
                                 borderRadius: '50%',
                                 backgroundColor: 'red',
                                 position: 'absolute',
@@ -217,8 +226,8 @@ const Ball = () => {
             </div>
             {isPhone() && (
                 <button
-                    onTouchStart={handleMouseDown}
-                    onTouchEnd={handleMouseUp}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
                     style={{
                         position: 'absolute',
                         bottom: '20px',
@@ -228,7 +237,7 @@ const Ball = () => {
                         fontSize: '16px',
                     }}
                 >
-                    Leave Trail
+                    o
                 </button>
             )}
         </div>
