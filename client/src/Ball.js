@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
-import "./App.css"
+import "./App.css";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -102,16 +102,22 @@ const Ball = () => {
                     setTrail(prevTrail => [...prevTrail, newPosition]);
                 }
 
-                if (socket) {
-                    socket.emit('playerMove', { position: newPosition, isDrawingTrail });
-                }
-
                 return newPosition;
             });
-        }, 1000 / 50);
+        }, 1000/60); //  (60 FPS)
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity, isDrawingTrail, socket]);
+    }, [acceleration, velocity, isDrawingTrail]);
+
+    useEffect(() => {
+        const batchInterval = setInterval(() => {
+            if (socket) {
+                socket.emit('playerMove', { position, isDrawingTrail });
+            }
+        }, 200); // Send updates every 200ms
+
+        return () => clearInterval(batchInterval);
+    }, [position, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
@@ -162,7 +168,7 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <div style={playZoneStyle}>
-                {!isPhone() && Object.keys(players).map(playerId => (
+                {Object.keys(players).map(playerId => (
                     <div key={playerId}>
                         {players[playerId].trail.map((trailPosition, index) => (
                             <div
@@ -175,7 +181,7 @@ const Ball = () => {
                                     position: 'absolute',
                                     top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
                                     left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.01,
+                                    opacity: 0.5,
                                 }}
                             />
                         ))}
@@ -193,36 +199,32 @@ const Ball = () => {
                         </div>
                     </div>
                 ))}
-                {isPhone() && (
-                    <div>
-                        {trail.map((trailPosition, index) => (
-                            <div
-                                key={index}
-                                style={{
-                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    borderRadius: '50%',
-                                    backgroundColor: 'blue',
-                                    position: 'absolute',
-                                    top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                    left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.01,
-                                }}
-                            />
-                        ))}
-                        <div
-                            style={{
-                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                borderRadius: '50%',
-                                backgroundColor: 'red',
-                                position: 'absolute',
-                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            }}
-                        ></div>
-                    </div>
-                )}
+                {trail.map((trailPosition, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            borderRadius: '50%',
+                            backgroundColor: 'blue',
+                            position: 'absolute',
+                            top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                            left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            opacity: 0.5,
+                        }}
+                    />
+                ))}
+                <div
+                    style={{
+                        width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                        height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                        borderRadius: '50%',
+                        backgroundColor: 'red',
+                        position: 'absolute',
+                        top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                        left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                    }}
+                ></div>
             </div>
             {isPhone() && (
                 <button
@@ -237,7 +239,7 @@ const Ball = () => {
                         fontSize: '16px',
                     }}
                 >
-                    o
+                    Leave Trail
                 </button>
             )}
         </div>
