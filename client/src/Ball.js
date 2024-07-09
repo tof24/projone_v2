@@ -175,7 +175,7 @@ const Ball = () => {
                                     position: 'absolute',
                                     top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
                                     left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.5,
+                                    opacity: 0.01,
                                 }}
                             />
                         ))}
@@ -206,7 +206,7 @@ const Ball = () => {
                                     position: 'absolute',
                                     top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
                                     left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.5,
+                                    opacity: 0.01,
                                 }}
                             />
                         ))}
