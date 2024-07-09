@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
-import Trace from "./Trace";
 import "./App.css"
-import {logDOM} from "@testing-library/react";
-import Orientation from "./Orientation";
-import Portrait from "./Portrait";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -12,6 +8,7 @@ const Ball = () => {
     const [position, setPosition] = useState({x: 0.02, y: 0.02}); // Normalized initial position (0.02 of play zone dimensions)
     const [velocity, setVelocity] = useState({x: 0, y: 0});
     const [acceleration, setAcceleration] = useState({x: 0, y: 0});
+    const [trail, setTrail] = useState([]); // State for the trail coordinates
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
@@ -127,6 +124,10 @@ const Ball = () => {
         handleBoundaryCollision();
     }, [position, ballSize, handleBoundaryCollision]);
 
+    const handleLeaveTrail = () => {
+        setTrail(prevTrail => [...prevTrail, {...position}]);
+    };
+
     const playZoneStyle = {
         width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
         height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
@@ -171,8 +172,21 @@ const Ball = () => {
                 ))}
                 {isPhone() && (
                     <div>
-
-
+                        {trail.map((trailPosition, index) => (
+                            <div
+                                key={index}
+                                style={{
+                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`, // Keep ball round
+                                    borderRadius: '50%',
+                                    backgroundColor: 'blue', // Color for the trail
+                                    position: 'absolute',
+                                    top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                    left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                    opacity: 0.5, // Make the trail semi-transparent
+                                }}
+                            />
+                        ))}
                         <div
                             style={{
                                 width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
@@ -187,10 +201,20 @@ const Ball = () => {
                     </div>
                 )}
             </div>
+            {isPhone() && (
+                <button onClick={handleLeaveTrail} style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '10px 20px',
+                    fontSize: '16px',
+                }}>
+                    Leave Trail
+                </button>
+            )}
         </div>
     );
 };
 
-
 export default Ball;
-
