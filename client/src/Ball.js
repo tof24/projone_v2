@@ -9,6 +9,7 @@ const Ball = () => {
     const [velocity, setVelocity] = useState({x: 0, y: 0});
     const [acceleration, setAcceleration] = useState({x: 0, y: 0});
     const [trail, setTrail] = useState([]); // State for the trail coordinates
+    const [isDrawingTrail, setIsDrawingTrail] = useState(false); // State to track if the trail should be drawn
     const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
 
     const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
@@ -94,39 +95,44 @@ const Ball = () => {
             setVelocity(newVelocity);
 
             // Update position based on velocity
-            setPosition(prevPosition => ({
-                x: prevPosition.x + newVelocity.x,
-                y: prevPosition.y + newVelocity.y
-            }));
+            setPosition(prevPosition => {
+                const newPosition = {
+                    x: prevPosition.x + newVelocity.x,
+                    y: prevPosition.y + newVelocity.y
+                };
+
+                // Add to trail if drawing
+                if (isDrawingTrail) {
+                    setTrail(prevTrail => [...prevTrail, newPosition]);
+                }
+
+                return newPosition;
+            });
 
             // Emit the position of the local player's ball to the server
             if (socket) {
-                socket.emit('playerMove', {position});
+                socket.emit('playerMove', { position });
             }
         }, 1000 / 100); // Update every 16.67 milliseconds for 100 FPS
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity, socket]); // Update when acceleration or velocity changes
+    }, [acceleration, velocity, isDrawingTrail, socket]); // Update when acceleration, velocity, or isDrawingTrail changes
 
     const handleBoundaryCollision = useCallback(() => {
         // Check if the ball is crossing the left or right border
         if (position.x < 0 || position.x + ballSize > 1) {
-            setVelocity(prevVelocity => ({...prevVelocity, x: -prevVelocity.x}));
+            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
         }
 
         // Check if the ball is crossing the top or bottom border
         if (position.y < 0 || position.y + ballSize > 1) {
-            setVelocity(prevVelocity => ({...prevVelocity, y: -prevVelocity.y}));
+            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
         }
     }, [position, ballSize]);
 
     useEffect(() => {
         handleBoundaryCollision();
     }, [position, ballSize, handleBoundaryCollision]);
-
-    const handleLeaveTrail = () => {
-        setTrail(prevTrail => [...prevTrail, {...position}]);
-    };
 
     const playZoneStyle = {
         width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
@@ -141,6 +147,14 @@ const Ball = () => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
+
+    const handleMouseDown = () => {
+        setIsDrawingTrail(true);
+    };
+
+    const handleMouseUp = () => {
+        setIsDrawingTrail(false);
+    };
 
     return (
         <div style={{
@@ -202,14 +216,18 @@ const Ball = () => {
                 )}
             </div>
             {isPhone() && (
-                <button onClick={handleLeaveTrail} style={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    padding: '10px 20px',
-                    fontSize: '16px',
-                }}>
+                <button
+                    onTouchStart={handleMouseDown}
+                    onTouchEnd={handleMouseUp}
+                    style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                    }}
+                >
                     Leave Trail
                 </button>
             )}
