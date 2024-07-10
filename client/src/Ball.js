@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import "./App.css";
+import { throttle } from 'lodash'; // Import throttle function from lodash
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -53,6 +54,17 @@ const Ball = () => {
             setPlayers(data);
         });
 
+        newSocket.on('playerMove', ({ playerId, position, trail }) => {
+            setPlayers(prevPlayers => ({
+                ...prevPlayers,
+                [playerId]: {
+                    ...prevPlayers[playerId],
+                    position,
+                    trail: trail || prevPlayers[playerId].trail,
+                }
+            }));
+        });
+
         return () => newSocket.disconnect();
     }, []);
 
@@ -79,6 +91,10 @@ const Ball = () => {
     const maxVelocity = 0.1;
 
     useEffect(() => {
+        const emitPlayerMoveThrottled = throttle((data) => {
+            socket.emit('playerMove', data);
+        }, 100); // Throttle to emit every 100ms
+
         const interval = setInterval(() => {
             let newVelocity = {
                 x: velocity.x + acceleration.x,
@@ -101,14 +117,17 @@ const Ball = () => {
                 }
 
                 if (socket) {
-                    socket.emit('playerMove', { position: newPosition, isDrawingTrail });
+                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
                 }
 
                 return newPosition;
             });
         }, 1000 / 80);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
+        };
     }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
@@ -148,8 +167,6 @@ const Ball = () => {
             const { playZoneWidth, playZoneHeight } = playZoneDimensions;
             canvas.width = playZoneWidth;
             canvas.height = playZoneHeight;
-
-            console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
 
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
@@ -223,6 +240,8 @@ const Ball = () => {
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
                 height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
+                position: 'relative',
+                overflow: 'hidden',
             }} />
 
             {isPhone() && (
