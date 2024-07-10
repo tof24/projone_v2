@@ -113,7 +113,13 @@ const Ball = () => {
                 };
 
                 if (isDrawingTrail) {
-                    updateTrail(newPosition);
+                    setTrail(prevTrail => {
+                        const newTrail = [...prevTrail, newPosition];
+                        if (newTrail.length > MAX_TRAIL_LENGTH) {
+                            newTrail.shift(); // Remove the oldest position
+                        }
+                        return newTrail;
+                    });
                 }
 
                 if (socket) {
@@ -157,57 +163,73 @@ const Ball = () => {
         setIsDrawingTrail(false);
     };
 
-    const MAX_TRAIL_LENGTH = 50;
-
-    const updateTrail = (newPosition) => {
-        setTrail(prevTrail => {
-            const updatedTrail = [...prevTrail, newPosition];
-            return updatedTrail.slice(-MAX_TRAIL_LENGTH); // Keep only the last MAX_TRAIL_LENGTH items
-        });
-    };
-
-    const draw = () => {
-        if (!playZoneDimensions) return;
-
-        const { playZoneWidth, playZoneHeight } = playZoneDimensions;
+    useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        canvas.width = playZoneWidth;
-        canvas.height = playZoneHeight;
+        const draw = () => {
+            if (!playZoneDimensions) return;
 
-        ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
+            const { playZoneWidth, playZoneHeight } = playZoneDimensions;
+            canvas.width = playZoneWidth;
+            canvas.height = playZoneHeight;
 
-        // Draw trail markers
-        trail.forEach(trailPosition => {
-            ctx.beginPath();
-            ctx.arc(
-                trailPosition.x * playZoneWidth,
-                trailPosition.y * playZoneHeight,
-                ballSize * playZoneWidth / 2,
-                0, 2 * Math.PI
-            );
-            ctx.fillStyle = 'blue';
-            ctx.globalAlpha = 0.01;
-            ctx.fill();
-        });
-        ctx.globalAlpha = 1.0;
+            ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
-        // Draw current position
-        ctx.beginPath();
-        ctx.arc(
-            position.x * playZoneWidth,
-            position.y * playZoneHeight,
-            ballSize * playZoneWidth / 2,
-            0, 2 * Math.PI
-        );
-        ctx.fillStyle = 'red';
-        ctx.fill();
-    };
+            if (!isPhone()) {
+                Object.keys(players).forEach(playerId => {
+                    const player = players[playerId];
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                        ctx.beginPath();
+                        ctx.arc(
+                            trailPosition.x * playZoneWidth,
+                            trailPosition.y * playZoneHeight,
+                            ballSize * playZoneWidth / 2,
+                            0, 2 * Math.PI
+                        );
+                        ctx.fillStyle = 'blue';
+                        ctx.globalAlpha = 0.01;
+                        ctx.fill();
+                    });
+                    ctx.globalAlpha = 1.0;
+                    ctx.beginPath();
+                    ctx.arc(
+                        player.position.x * playZoneWidth,
+                        player.position.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fill();
+                });
+            } else {
+                trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        trailPosition.x * playZoneWidth,
+                        trailPosition.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'blue';
+                    ctx.globalAlpha = 0.01;
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1.0;
+                ctx.beginPath();
+                ctx.arc(
+                    position.x * playZoneWidth,
+                    position.y * playZoneHeight,
+                    ballSize * playZoneWidth / 2,
+                    0, 2 * Math.PI
+                );
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            }
+        };
 
-    useEffect(() => {
         draw();
-    }, [trail, position, playZoneDimensions]);
+    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
 
     return (
         <div style={{
@@ -221,46 +243,13 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
 
-            {!isPhone() && Object.keys(players).map(playerId => (
-                <React.Fragment key={playerId}>
-                    {players[playerId].trail.map((trailPosition, index) => (
-                        <div
-                            key={index}
-                            style={{
-                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                borderRadius: '50%',
-                                backgroundColor: 'blue',
-                                position: 'absolute',
-                                top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                opacity: 0.01,
-                            }}
-                        />
-                    ))}
-                    <div
-                        style={{
-                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            borderRadius: '50%',
-                            backgroundColor: 'darkolivegreen',
-                            position: 'absolute',
-                            top: `${players[playerId].position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                            left: `${players[playerId].position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                        }}
-                    />
-                </React.Fragment>
-            ))}
-
-            {isPhone() && (
-                <canvas ref={canvasRef} style={{
-                    width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-                    height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-                    backgroundColor: 'white',
-                    position: 'relative',
-                    overflow: 'hidden',
-                }} />
-            )}
+            <canvas ref={canvasRef} style={{
+                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+                backgroundColor: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+            }} />
 
             {isPhone() && (
                 <button
@@ -281,4 +270,5 @@ const Ball = () => {
         </div>
     );
 };
+
 export default Ball;
