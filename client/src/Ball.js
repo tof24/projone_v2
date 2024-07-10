@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import "./App.css"
 
@@ -108,7 +108,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 80);
+        }, 1000 / 50);
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, isDrawingTrail, socket]);
@@ -127,14 +127,36 @@ const Ball = () => {
         handleBoundaryCollision();
     }, [position, ballSize, handleBoundaryCollision]);
 
-    const playZoneStyle = {
-        width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-        height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-        backgroundColor: 'white',
-        position: 'relative',
-        overflow: 'hidden',
-        top: '0',
-    };
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+
+        const drawBall = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(position.x * canvas.width, position.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (isDrawingTrail) {
+                trail.forEach(trailPosition => {
+                    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
+                    ctx.beginPath();
+                    ctx.arc(trailPosition.x * canvas.width, trailPosition.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        };
+
+        const animationFrameId = requestAnimationFrame(() => {
+            drawBall();
+        });
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [position, trail, isDrawingTrail, ballSize]);
 
     const isPhone = useCallback(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -161,59 +183,14 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
 
-            <div style={playZoneStyle}>
-                {!isPhone() && Object.keys(players).map(playerId => (
-                    <div key={playerId}>
-                        {players[playerId].trail.map((trailPosition, index) => (
-                            <div
-                                key={index}
-                                style={{
-                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    borderRadius: '50%',
-                                    backgroundColor: 'blue',
-                                    position: 'absolute',
-                                    top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                    left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.01,
-                                }}
-                            />
-                        ))}
-                        <div
-                            style={{
-                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                borderRadius: '50%',
-                                backgroundColor: 'darkolivegreen',
-                                position: 'absolute',
-                                top: `${players[playerId].position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${players[playerId].position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            }}
-                        >
-                        </div>
-                    </div>
-                ))}
-                {isPhone() && (
-                    <svg width={playZoneDimensions ? playZoneDimensions.playZoneWidth : 0} height={playZoneDimensions ? playZoneDimensions.playZoneHeight : 0}>
-                        {trail.map((trailPosition, index) => (
-                            <circle
-                                key={index}
-                                cx={trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}
-                                cy={trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}
-                                r={ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0) / 2}
-                                fill="blue"
-                                opacity="0.01"
-                            />
-                        ))}
-                        <circle
-                            cx={position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}
-                            cy={position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}
-                            r={ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0) / 2}
-                            fill="red"
-                        />
-                    </svg>
-                )}
-            </div>
+            <canvas ref={canvasRef} style={{
+                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+                backgroundColor: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+            }} />
+
             {isPhone() && (
                 <button
                     onTouchStart={handleTouchStart}
