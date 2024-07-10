@@ -113,7 +113,7 @@ const Ball = () => {
                 };
 
                 if (isDrawingTrail) {
-                    setTrail(prevTrail => [...prevTrail, newPosition]);
+                    updateTrail(newPosition);
                 }
 
                 if (socket) {
@@ -157,72 +157,57 @@ const Ball = () => {
         setIsDrawingTrail(false);
     };
 
-    useEffect(() => {
+    const MAX_TRAIL_LENGTH = 10;
+
+    const updateTrail = (newPosition) => {
+        setTrail(prevTrail => {
+            const updatedTrail = [...prevTrail, newPosition];
+            return updatedTrail.slice(-MAX_TRAIL_LENGTH); // Keep only the last MAX_TRAIL_LENGTH items
+        });
+    };
+
+    const draw = () => {
+        if (!playZoneDimensions) return;
+
+        const { playZoneWidth, playZoneHeight } = playZoneDimensions;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        const draw = () => {
-            if (!playZoneDimensions) return;
+        canvas.width = playZoneWidth;
+        canvas.height = playZoneHeight;
 
-            const { playZoneWidth, playZoneHeight } = playZoneDimensions;
-            canvas.width = playZoneWidth;
-            canvas.height = playZoneHeight;
+        ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
-            ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
+        // Draw trail markers
+        trail.forEach(trailPosition => {
+            ctx.beginPath();
+            ctx.arc(
+                trailPosition.x * playZoneWidth,
+                trailPosition.y * playZoneHeight,
+                ballSize * playZoneWidth / 2,
+                0, 2 * Math.PI
+            );
+            ctx.fillStyle = 'blue';
+            ctx.globalAlpha = 0.01;
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1.0;
 
-            if (!isPhone()) {
-                Object.keys(players).forEach(playerId => {
-                    players[playerId].trail.forEach(trailPosition => {
-                        ctx.beginPath();
-                        ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.01;
-                        ctx.fill();
-                    });
-                    ctx.globalAlpha = 1.0;
-                    ctx.beginPath();
-                    ctx.arc(
-                        players[playerId].position.x * playZoneWidth,
-                        players[playerId].position.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'darkolivegreen';
-                    ctx.fill();
-                });
-            } else {
-                trail.forEach(trailPosition => {
-                    ctx.beginPath();
-                    ctx.arc(
-                        trailPosition.x * playZoneWidth,
-                        trailPosition.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'blue';
-                    ctx.globalAlpha = 0.01;
-                    ctx.fill();
-                });
-                ctx.globalAlpha = 1.0;
-                ctx.beginPath();
-                ctx.arc(
-                    position.x * playZoneWidth,
-                    position.y * playZoneHeight,
-                    ballSize * playZoneWidth / 2,
-                    0, 2 * Math.PI
-                );
-                ctx.fillStyle = 'red';
-                ctx.fill();
-            }
-        };
+        // Draw current position
+        ctx.beginPath();
+        ctx.arc(
+            position.x * playZoneWidth,
+            position.y * playZoneHeight,
+            ballSize * playZoneWidth / 2,
+            0, 2 * Math.PI
+        );
+        ctx.fillStyle = 'red';
+        ctx.fill();
+    };
 
+    useEffect(() => {
         draw();
-    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
+    }, [trail, position, playZoneDimensions]);
 
     return (
         <div style={{
