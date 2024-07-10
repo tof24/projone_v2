@@ -13,6 +13,7 @@ const Ball = () => {
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
+
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
@@ -142,9 +143,13 @@ const Ball = () => {
         const ctx = canvas.getContext('2d');
 
         const draw = () => {
+            if (!playZoneDimensions) return;
+
             const { playZoneWidth, playZoneHeight } = playZoneDimensions;
             canvas.width = playZoneWidth;
             canvas.height = playZoneHeight;
+
+            console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
 
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
