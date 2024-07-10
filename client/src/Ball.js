@@ -157,7 +157,7 @@ const Ball = () => {
         setIsDrawingTrail(false);
     };
 
-    const MAX_TRAIL_LENGTH = 10;
+    const MAX_TRAIL_LENGTH = 50;
 
     const updateTrail = (newPosition) => {
         setTrail(prevTrail => {
@@ -221,13 +221,46 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
 
-            <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-                backgroundColor: 'white',
-                position: 'relative',
-                overflow: 'hidden',
-            }} />
+            {!isPhone() && Object.keys(players).map(playerId => (
+                <React.Fragment key={playerId}>
+                    {players[playerId].trail.map((trailPosition, index) => (
+                        <div
+                            key={index}
+                            style={{
+                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                borderRadius: '50%',
+                                backgroundColor: 'blue',
+                                position: 'absolute',
+                                top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                                left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                                opacity: 0.01,
+                            }}
+                        />
+                    ))}
+                    <div
+                        style={{
+                            width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                            borderRadius: '50%',
+                            backgroundColor: 'darkolivegreen',
+                            position: 'absolute',
+                            top: `${players[playerId].position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
+                            left: `${players[playerId].position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
+                        }}
+                    />
+                </React.Fragment>
+            ))}
+
+            {isPhone() && (
+                <canvas ref={canvasRef} style={{
+                    width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+                    height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+                    backgroundColor: 'white',
+                    position: 'relative',
+                    overflow: 'hidden',
+                }} />
+            )}
 
             {isPhone() && (
                 <button
@@ -248,5 +281,4 @@ const Ball = () => {
         </div>
     );
 };
-
 export default Ball;
