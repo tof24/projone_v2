@@ -108,7 +108,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 50);
+        }, 1000 / 100);
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, isDrawingTrail, socket]);
