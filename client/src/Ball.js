@@ -108,7 +108,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 100);
+        }, 1000 / 80);
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, isDrawingTrail, socket]);
@@ -194,34 +194,24 @@ const Ball = () => {
                     </div>
                 ))}
                 {isPhone() && (
-                    <div>
+                    <svg width={playZoneDimensions ? playZoneDimensions.playZoneWidth : 0} height={playZoneDimensions ? playZoneDimensions.playZoneHeight : 0}>
                         {trail.map((trailPosition, index) => (
-                            <div
+                            <circle
                                 key={index}
-                                style={{
-                                    width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    borderRadius: '50%',
-                                    backgroundColor: 'blue',
-                                    position: 'absolute',
-                                    top: `${trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                    left: `${trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                    opacity: 0.01,
-                                }}
+                                cx={trailPosition.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}
+                                cy={trailPosition.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}
+                                r={ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0) / 2}
+                                fill="blue"
+                                opacity="0.01"
                             />
                         ))}
-                        <div
-                            style={{
-                                width: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                height: `${ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                                borderRadius: '50%',
-                                backgroundColor: 'red',
-                                position: 'absolute',
-                                top: `${position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}px`,
-                                left: `${position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}px`,
-                            }}
-                        ></div>
-                    </div>
+                        <circle
+                            cx={position.x * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0)}
+                            cy={position.y * (playZoneDimensions ? playZoneDimensions.playZoneHeight : 0)}
+                            r={ballSize * (playZoneDimensions ? playZoneDimensions.playZoneWidth : 0) / 2}
+                            fill="red"
+                        />
+                    </svg>
                 )}
             </div>
             {isPhone() && (
