@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
-import "./App.css"
+import "./App.css";
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 0.02, y: 0.02 }); // Normalized initial position (0.02 of play zone dimensions)
+    const [position, setPosition] = useState({ x: 0.02, y: 0.02 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
-    const [trail, setTrail] = useState([]); // State for the trail coordinates
-    const [isDrawingTrail, setIsDrawingTrail] = useState(false); // State to track if the trail should be drawn
-    const ballSize = 0.04; // Normalized size of the ball (2% of play zone dimensions)
+    const [trail, setTrail] = useState([]);
+    const [isDrawingTrail, setIsDrawingTrail] = useState(false);
+    const ballSize = 0.04;
 
-    const playZoneAspectRatio = 1080 / 1920; // Aspect ratio of the play zone
-
+    const playZoneAspectRatio = 1080 / 1920;
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
@@ -31,6 +30,7 @@ const Ball = () => {
     }, [playZoneAspectRatio]);
 
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
+    const canvasRef = useRef(null);
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -57,13 +57,10 @@ const Ball = () => {
 
     useEffect(() => {
         const handleDeviceOrientation = (event) => {
-            const beta = event.beta; // Angle of tilt in the front-to-back direction (-180 to 180)
-            const gamma = event.gamma; // Angle of tilt in the left-to-right direction (-90 to 90)
+            const beta = event.beta;
+            const gamma = event.gamma;
+            const sensitivity = 0.000005;
 
-            // Adjust sensitivity here
-            const sensitivity = 0.000005; // Adjust this value to change sensitivity
-
-            // Calculate acceleration based on gyroscope data
             const newAcceleration = {
                 x: gamma * sensitivity,
                 y: beta * sensitivity
@@ -78,7 +75,7 @@ const Ball = () => {
         };
     }, []);
 
-    const maxVelocity = 0.1; // Set your desired maximum velocity
+    const maxVelocity = 0.1;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -108,7 +105,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 50);
+        }, 1000 / 80);
 
         return () => clearInterval(interval);
     }, [acceleration, velocity, isDrawingTrail, socket]);
@@ -127,37 +124,6 @@ const Ball = () => {
         handleBoundaryCollision();
     }, [position, ballSize, handleBoundaryCollision]);
 
-    const canvasRef = useRef(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-
-        const drawBall = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(position.x * canvas.width, position.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            if (isDrawingTrail) {
-                trail.forEach(trailPosition => {
-                    ctx.fillStyle = 'rgba(0, 0, 255, 0.1)';
-                    ctx.beginPath();
-                    ctx.arc(trailPosition.x * canvas.width, trailPosition.y * canvas.height, ballSize * canvas.width / 2, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-            }
-        };
-
-        const animationFrameId = requestAnimationFrame(() => {
-            drawBall();
-        });
-
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [position, trail, isDrawingTrail, ballSize]);
-
     const isPhone = useCallback(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
@@ -170,6 +136,71 @@ const Ball = () => {
     const handleTouchEnd = () => {
         setIsDrawingTrail(false);
     };
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+
+        const draw = () => {
+            const { playZoneWidth, playZoneHeight } = playZoneDimensions;
+            canvas.width = playZoneWidth;
+            canvas.height = playZoneHeight;
+
+            ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
+
+            if (!isPhone()) {
+                Object.keys(players).forEach(playerId => {
+                    players[playerId].trail.forEach(trailPosition => {
+                        ctx.beginPath();
+                        ctx.arc(
+                            trailPosition.x * playZoneWidth,
+                            trailPosition.y * playZoneHeight,
+                            ballSize * playZoneWidth / 2,
+                            0, 2 * Math.PI
+                        );
+                        ctx.fillStyle = 'blue';
+                        ctx.globalAlpha = 0.01;
+                        ctx.fill();
+                    });
+                    ctx.globalAlpha = 1.0;
+                    ctx.beginPath();
+                    ctx.arc(
+                        players[playerId].position.x * playZoneWidth,
+                        players[playerId].position.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fill();
+                });
+            } else {
+                trail.forEach(trailPosition => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        trailPosition.x * playZoneWidth,
+                        trailPosition.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'blue';
+                    ctx.globalAlpha = 0.01;
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1.0;
+                ctx.beginPath();
+                ctx.arc(
+                    position.x * playZoneWidth,
+                    position.y * playZoneHeight,
+                    ballSize * playZoneWidth / 2,
+                    0, 2 * Math.PI
+                );
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            }
+        };
+
+        draw();
+    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
 
     return (
         <div style={{
@@ -187,8 +218,6 @@ const Ball = () => {
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
                 height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
-                position: 'relative',
-                overflow: 'hidden',
             }} />
 
             {isPhone() && (
