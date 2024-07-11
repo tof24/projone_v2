@@ -114,16 +114,18 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-                setTrail(prevTrail => {
-                    const newTrail = [...prevTrail, newPosition];
-                    if (newTrail.length > MAX_TRAIL_LENGTH) {
-                        newTrail.shift(); // Remove the oldest position
-                    }
-                    return newTrail;
-                });
+                if (isDrawingTrail) {
+                    setTrail(prevTrail => {
+                        const newTrail = [...prevTrail, newPosition];
+                        if (newTrail.length > MAX_TRAIL_LENGTH) {
+                            newTrail.shift(); // Remove the oldest position
+                        }
+                        return newTrail;
+                    });
+                }
 
                 if (socket) {
-                    emitPlayerMoveThrottled({ position: newPosition, trail, isDrawingTrail });
+                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
                 }
 
                 return newPosition;
@@ -134,7 +136,7 @@ const Ball = () => {
             clearInterval(interval);
             emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
         };
-    }, [acceleration, velocity, socket, trail, isDrawingTrail]);
+    }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
@@ -246,8 +248,8 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+                width: playZoneDimensions ? ${playZoneDimensions.playZoneWidth}px : '100%',
+                height: playZoneDimensions ? ${playZoneDimensions.playZoneHeight}px : '100%',
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden',
