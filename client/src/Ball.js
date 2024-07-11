@@ -115,8 +115,8 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-               
-                if (isDrawingTrail) {
+
+
                     setTrail(prevTrail => {
                         const newTrail = [...prevTrail, newPosition];
                         if (newTrail.length > MAX_TRAIL_LENGTH) {
@@ -124,7 +124,7 @@ const Ball = () => {
                         }
                         return newTrail;
                     });
-                }
+               
 
                 if (socket) {
                     emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
