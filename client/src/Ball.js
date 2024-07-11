@@ -114,14 +114,14 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-
+            if(isDrawingTrail){
                 setTrail(prevTrail => {
                     const newTrail = [...prevTrail, newPosition];
                     if (newTrail.length > MAX_TRAIL_LENGTH) {
                         newTrail.shift(); // Remove the oldest position
                     }
                     return newTrail;
-                });
+                });}
 
 
                 if (socket) {
