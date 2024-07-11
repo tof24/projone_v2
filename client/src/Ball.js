@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
-import './App.css';
+import "./App.css";
 import { throttle } from 'lodash'; // Import throttle function from lodash
 
 const Ball = () => {
@@ -114,15 +115,16 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-            if(isDrawingTrail){
-                setTrail(prevTrail => {
-                    const newTrail = [...prevTrail, newPosition];
-                    if (newTrail.length > MAX_TRAIL_LENGTH) {
-                        newTrail.shift(); // Remove the oldest position
-                    }
-                    return newTrail;
-                });}
-
+               
+                if (isDrawingTrail) {
+                    setTrail(prevTrail => {
+                        const newTrail = [...prevTrail, newPosition];
+                        if (newTrail.length > MAX_TRAIL_LENGTH) {
+                            newTrail.shift(); // Remove the oldest position
+                        }
+                        return newTrail;
+                    });
+                }
 
                 if (socket) {
                     emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
@@ -157,13 +159,11 @@ const Ball = () => {
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
 
-    const handleTouchStart = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+    const handleTouchStart = () => {
         setIsDrawingTrail(true);
     };
 
-    const handleTouchEnd = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+    const handleTouchEnd = () => {
         setIsDrawingTrail(false);
     };
 
@@ -248,8 +248,8 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? ${playZoneDimensions.playZoneWidth}px : '100%',
-                height: playZoneDimensions ? ${playZoneDimensions.playZoneHeight}px : '100%',
+                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden',
