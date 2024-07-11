@@ -114,18 +114,16 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-                if (isDrawingTrail) {
-                    setTrail(prevTrail => {
-                        const newTrail = [...prevTrail, newPosition];
-                        if (newTrail.length > MAX_TRAIL_LENGTH) {
-                            newTrail.shift(); // Remove the oldest position
-                        }
-                        return newTrail;
-                    });
-                }
+                setTrail(prevTrail => {
+                    const newTrail = [...prevTrail, newPosition];
+                    if (newTrail.length > MAX_TRAIL_LENGTH) {
+                        newTrail.shift(); // Remove the oldest position
+                    }
+                    return newTrail;
+                });
 
                 if (socket) {
-                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
+                    emitPlayerMoveThrottled({ position: newPosition, trail });
                 }
 
                 return newPosition;
@@ -136,7 +134,7 @@ const Ball = () => {
             clearInterval(interval);
             emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
         };
-    }, [acceleration, velocity, isDrawingTrail, socket]);
+    }, [acceleration, velocity, socket, trail]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
