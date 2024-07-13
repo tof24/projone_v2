@@ -130,7 +130,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 80);
+        }, 1000 / 60);
 
         return () => {
             clearInterval(interval);
@@ -192,7 +192,7 @@ const Ball = () => {
                             0, 2 * Math.PI
                         );
                         ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.01;
+                        ctx.globalAlpha = 0.05;
                         ctx.fill();
                     });
                     ctx.globalAlpha = 1.0;
@@ -264,11 +264,11 @@ const Ball = () => {
                         bottom: '20px',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        padding: '10px 20px',
+                        padding: '20px 30px',
                         fontSize: '16px',
                     }}
                 >
-                    o
+
                 </button>
             )}
         </div>
