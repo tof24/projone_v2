@@ -14,7 +14,6 @@ function App() {
     }, []);
   return (
       <div>
-          <p style={"color:white"}>HELLOOOOOOOOOO</p>
           {isPhone() && (
           <Portrait></Portrait>
           )}
