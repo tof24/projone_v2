@@ -15,7 +15,7 @@ function App() {
     return (
         <div>
             <h1 className={"test"}>test</h1>
-            <div className="zoomed-div">
+            <div >
                 {isPhone() && (
                     <Portrait></Portrait>
                 )}
