@@ -24,7 +24,12 @@ body{
 
 .zoomed-div {
   transform: scale(1.5); /* Adjust the scale value as needed */
-  transform-origin: top left; /* Adjust the origin if necessary */
+  transform-origin: center; /* Center the zoom */
+  width: 100vw; /* Ensure the div takes full viewport width */
+  height: 100vh; /* Ensure the div takes full viewport height */
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */  
 }
 
 
