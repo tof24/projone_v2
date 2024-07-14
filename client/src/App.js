@@ -18,7 +18,7 @@ function App() {
             <div>
                 {isPhone() && (
                     <div>
-                       
+
                         <Ball></Ball>
                     </div>
                 )}
