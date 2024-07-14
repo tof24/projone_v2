@@ -29,7 +29,6 @@ const Portrait = () => {
 
     return (
         <div>
-            <h1>Website Content</h1>
             {showWarning && (
                 <div className="modal">
                     <div className="modal-content">
