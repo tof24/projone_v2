@@ -34,7 +34,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 50; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 300; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -50,6 +50,8 @@ const Ball = () => {
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
+        //const newSocket = io('http://localhost:4000');
+
         setSocket(newSocket);
 
         newSocket.on('playerPositions', (data) => {

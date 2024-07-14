@@ -16,23 +16,45 @@
   }
 }
 
-body{
+body {
+  --s: 60px;
+  --c1: #365748;
+  --c2: #30303a;
 
-  --s: 60px; /* control the size*/
-  --c1: #b09f79;
-  --c2: #476074;
-
-  --_g: #0000 83%,var(--c1) 85% 99%,#0000 101%;
   background:
-          radial-gradient(27% 29% at right ,var(--_g)) calc(var(--s)/ 2) var(--s),
-          radial-gradient(27% 29% at left  ,var(--_g)) calc(var(--s)/-2) var(--s),
-          radial-gradient(29% 27% at top   ,var(--_g)) 0 calc(var(--s)/ 2),
-          radial-gradient(29% 27% at bottom,var(--_g)) 0 calc(var(--s)/-2)
-          var(--c2);
-  background-size: calc(2*var(--s)) calc(2*var(--s));
+          radial-gradient(circle, var(--c1) 0%, var(--c2) 100%) calc(var(--s) * 0) calc(var(--s) * 0) / var(--s) var(--s);
 
+  background-size: calc(var(--s) * 4) calc(var(--s) * 4);
   overflow: hidden;
+  position: relative;
+
 }
+
+@keyframes moveGradients {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(100%, 100%);
+  }
+}
+
+
+
+/* Adding grain using pseudo-elements */
+body::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -10px;
+  width: 100%;
+  height: 100%;
+  background:
+          linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px,
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px;
+  pointer-events: none; /* Prevents the pseudo-element from intercepting pointer events */
+}
+
 
 .zoomed-div {
   transform: scale(1.5); /* Adjust the scale value as needed */
