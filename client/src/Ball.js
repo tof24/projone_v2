@@ -241,13 +241,13 @@ const Ball = () => {
         bottom: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
-        padding: '20px 100vw',
+        padding: '30px 30px',
         fontSize: '16px',
         backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
         color: '#fff', // text color
         border: 'none',
         outline: 'none',
-        borderRadius: '10px',
+        borderRadius: '30px',
     };
 
     const svgStyle = {
