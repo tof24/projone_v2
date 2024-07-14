@@ -241,8 +241,8 @@ const Ball = () => {
         bottom: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '60px', // Adjust width and height for your button size
-        height: '60px',
+        width: '90px', // Adjust width and height for your button size
+        height: '90px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
