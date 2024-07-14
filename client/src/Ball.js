@@ -34,7 +34,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 300; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 50; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -50,8 +50,6 @@ const Ball = () => {
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
-        //const newSocket = io('http://localhost:4000');
-
         setSocket(newSocket);
 
         newSocket.on('playerPositions', (data) => {
@@ -241,16 +239,19 @@ const Ball = () => {
         <div style={{
             width: '100vw',
             height: '100vh',
-            backgroundColor: 'transparent',
+            backgroundColor: 'black',
             display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             overflow: 'hidden',
+            position: 'relative',
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
                 height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
-                marginLeft: '33%',
+                position: 'relative',
                 overflow: 'hidden',
             }} />
 
