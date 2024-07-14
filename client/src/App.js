@@ -12,15 +12,15 @@ function App() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
-  return (
-      <div>
-          <h1>test</h1>
-          {isPhone() && (
-          <Portrait></Portrait>
-          )}
-        <Ball></Ball>
-      </div>
-  );
+    return (
+        <div className="zoomed-div">
+            <h1>test</h1>
+            {isPhone() && (
+                <Portrait></Portrait>
+            )}
+            <Ball></Ball>
+        </div>
+    );
 }
 
 export default App;

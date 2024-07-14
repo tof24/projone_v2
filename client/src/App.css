@@ -19,7 +19,12 @@
 
 body{
   background-color: black;
+  overflow: hidden;
 }
 
+.zoomed-div {
+  transform: scale(1.5); /* Adjust the scale value as needed */
+  transform-origin: top left; /* Adjust the origin if necessary */
+}
 
 
