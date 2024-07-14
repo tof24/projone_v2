@@ -15,11 +15,19 @@ function App() {
     return (
         <div>
             <h1 className={"test"}>test</h1>
-            <div >
+            <div>
                 {isPhone() && (
-                    <Portrait></Portrait>
+                    <div>
+                        <Portrait></Portrait>
+                        <Ball></Ball>
+                    </div>
                 )}
-                <Ball></Ball>
+                {!isPhone() && (
+                    <div className={"zoomed-div"}>
+                        <Ball2 id={"pc"} class={"display"}></Ball2>
+                    </div>
+                )}
+
             </div>
         </div>
 
