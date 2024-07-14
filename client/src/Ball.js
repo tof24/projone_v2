@@ -14,6 +14,7 @@ const Ball = () => {
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
+    const desktopScaleFactor = 1.5; // Define the scaling factor for desktop
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -175,10 +176,12 @@ const Ball = () => {
             if (!playZoneDimensions) return;
 
             const { playZoneWidth, playZoneHeight } = playZoneDimensions;
-            canvas.width = playZoneWidth;
-            canvas.height = playZoneHeight;
+            const scaleFactor = isPhone() ? 1 : desktopScaleFactor; // Apply scaling factor for desktop
 
-            ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
+            canvas.width = playZoneWidth * scaleFactor;
+            canvas.height = playZoneHeight * scaleFactor;
+
+            ctx.clearRect(0, 0, playZoneWidth * scaleFactor, playZoneHeight * scaleFactor);
 
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
@@ -186,9 +189,9 @@ const Ball = () => {
                     player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
                         ctx.beginPath();
                         ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
+                            trailPosition.x * playZoneWidth * scaleFactor,
+                            trailPosition.y * playZoneHeight * scaleFactor,
+                            ballSize * playZoneWidth * scaleFactor / 2,
                             0, 2 * Math.PI
                         );
                         ctx.fillStyle = 'blue';
@@ -198,9 +201,9 @@ const Ball = () => {
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
                     ctx.arc(
-                        player.position.x * playZoneWidth,
-                        player.position.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
+                        player.position.x * playZoneWidth * scaleFactor,
+                        player.position.y * playZoneHeight * scaleFactor,
+                        ballSize * playZoneWidth * scaleFactor / 2,
                         0, 2 * Math.PI
                     );
                     ctx.fillStyle = 'darkolivegreen';

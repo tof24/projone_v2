@@ -29,7 +29,7 @@ body{
   height: 100vh; /* Ensure the div takes full viewport height */
   display: flex; /* Use flexbox to center content */
   justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */  
+  align-items: center; /* Center vertically */
 }
 
 
