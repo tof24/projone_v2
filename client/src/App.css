@@ -17,6 +17,9 @@
 }
 
 #pc.display {
+  width: 100vw;
+  height: 100vh;
+
   --s: 60px;
   --c1: #365748;
   --c2: #30303a;

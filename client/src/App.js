@@ -15,7 +15,6 @@ function App() {
     }, []);
     return (
         <div>
-            <h1 className={"test"}>test</h1>
             <div>
                 {isPhone() && (
                     <div>
@@ -24,8 +23,10 @@ function App() {
                     </div>
                 )}
                 {!isPhone() && (
-                    <div className={"zoomed-div"}>
-                        <Ball2 id={"pc"} class={"display"}></Ball2>
+                    <div id={"pc"} className={"display"}>
+                        <div className={"zoomed-div"}>
+                            <Ball2  class={""}></Ball2>
+                        </div>
                     </div>
                 )}
 
