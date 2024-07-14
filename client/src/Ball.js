@@ -239,7 +239,7 @@ const Ball = () => {
         <div style={{
             width: '100vw',
             height: '100vh',
-            backgroundColor: 'black',
+            backgroundColor: 'transparent',
             display: 'flex',
             overflow: 'hidden',
         }} className={"fullscreen-center"}>
