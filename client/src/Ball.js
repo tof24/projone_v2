@@ -34,7 +34,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 50; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
