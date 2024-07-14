@@ -13,13 +13,16 @@ function App() {
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
     return (
-        <div className="zoomed-div">
-            <h1>test</h1>
-            {isPhone() && (
-                <Portrait></Portrait>
-            )}
-            <Ball></Ball>
+        <div>
+            <h1 className={"test"}>test</h1>
+            <div className="zoomed-div">
+                {isPhone() && (
+                    <Portrait></Portrait>
+                )}
+                <Ball></Ball>
+            </div>
         </div>
+
     );
 }
 
