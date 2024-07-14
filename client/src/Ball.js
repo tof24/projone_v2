@@ -95,7 +95,7 @@ const Ball = () => {
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {
             socket.emit('playerMove', data);
-        }, 800);
+        }, 2000);
 
         const interval = setInterval(() => {
             let newVelocity = {
