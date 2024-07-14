@@ -8,63 +8,6 @@
   position: relative;
 }
 
-@media (min-width: 1024px), /* Desktop */
-(orientation: landscape) /* Landscape devices */ {
-  .fullscreen-center {
-    transform: rotate(90deg);
-    transform-origin: center;
-  }
-}
-
-body {
-  --s: 60px;
-  --c1: #365748;
-  --c2: #30303a;
-
-  background:
-          radial-gradient(circle, var(--c1) 0%, var(--c2) 100%) calc(var(--s) * 0) calc(var(--s) * 0) / var(--s) var(--s);
-
-  background-size: calc(var(--s) * 4) calc(var(--s) * 4);
-  overflow: hidden;
-  position: relative;
-
-}
-
-@keyframes moveGradients {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(100%, 100%);
-  }
-}
-
-
-
-/* Adding grain using pseudo-elements */
-body::after {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -10px;
-  width: 100%;
-  height: 100%;
-  background:
-          linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px,
-          linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px;
-  pointer-events: none; /* Prevents the pseudo-element from intercepting pointer events */
-}
-
-
-.zoomed-div {
-  transform: scale(1.5); /* Adjust the scale value as needed */
-  transform-origin: center; /* Center the zoom */
-  width: 100vw; /* Ensure the div takes full viewport width */
-  height: 100vh; /* Ensure the div takes full viewport height */
-  display: flex; /* Use flexbox to center content */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-}
 
 
 .test{
