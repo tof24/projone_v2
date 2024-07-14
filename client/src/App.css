@@ -8,9 +8,10 @@
   position: relative;
 }
 
-
-
-.test{
-  color: white;
-  z-index: 1000;
+@media (min-width: 1024px), /* Desktop */
+(orientation: landscape) /* Landscape devices */ {
+  .fullscreen-center {
+    transform: rotate(90deg);
+    transform-origin: center;
+  }
 }
