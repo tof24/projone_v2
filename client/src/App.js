@@ -4,6 +4,7 @@ import Ball from "./Ball";
 import Portrait from "./Portrait";
 import "./App.css"
 import React, {useCallback} from "react";
+import Ball2 from "./Ball2";
 
 
 
