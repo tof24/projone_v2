@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './App.css'; // Import the CSS for styling
 
 const Portrait = () => {
     const [isPortrait, setIsPortrait] = useState(true);
@@ -9,17 +10,18 @@ const Portrait = () => {
             const isPortraitMode = window.matchMedia('(orientation: portrait)').matches;
             setIsPortrait(isPortraitMode);
             setShowWarning(!isPortraitMode);
+            console.log("portrait", isPortraitMode, isPortrait);
         };
 
         // Initial check
         handleOrientationChange();
 
         // Listen for orientation changes
-        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', handleOrientationChange);
 
         return () => {
             // Clean up listener
-            window.removeEventListener('orientationchange', handleOrientationChange);
+            window.removeEventListener('resize', handleOrientationChange);
         };
     }, []);
 
