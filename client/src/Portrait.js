@@ -40,11 +40,6 @@ const Portrait = () => {
                     </div>
                 </div>
             )}
-            {isPortrait ? (
-                <p style={{ color: "white" }}>Device is in portrait mode.</p>
-            ) : (
-                <p style={{ color: "white" }}>Please rotate your device to portrait mode for the best experience.</p>
-            )}
         </div>
     );
 };
