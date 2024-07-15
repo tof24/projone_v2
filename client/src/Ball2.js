@@ -250,7 +250,7 @@ const Ball2 = () => {
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
                 height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
-                marginLeft: '34.95%',
+                margin: 'auto',
                 overflow: 'hidden',
             }} />
 

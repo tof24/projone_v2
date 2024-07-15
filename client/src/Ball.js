@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import './App.css';
 import { throttle } from 'lodash'; // Import throttle function from lodash
 
+
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
@@ -14,6 +15,7 @@ const Ball = () => {
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
+
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
