@@ -5,7 +5,7 @@ import Portrait from "./Portrait";
 import "./App.css"
 import React, {useCallback, useEffect} from "react";
 import Ball2 from "./Ball2";
-import useScript from "./useScript";
+
 
 
 
@@ -13,11 +13,8 @@ import useScript from "./useScript";
 function App() {
 
 
-
-    useScript(`${process.env.PUBLIC_URL}/grained.js`);
-
     useEffect(() => {
-        var options = {
+        const options = {
             "animate": true,
             "patternWidth": 500,
             "patternHeight": 500,
@@ -25,7 +22,7 @@ function App() {
             "grainDensity": 3.57,
             "grainWidth": 1,
             "grainHeight": 1.79,
-        }
+        };
         if (window.grained) {
             window.grained(document.getElementById('pc'), options);
         }
