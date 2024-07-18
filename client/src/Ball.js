@@ -204,7 +204,7 @@ const Ball = () => {
                     });
 
                     ctx.stroke();
-                    
+
 
                     // Draw player
                     ctx.beginPath();
@@ -251,6 +251,7 @@ const Ball = () => {
         position: 'absolute',
         bottom: '30px',
         left: '50%',
+        transform: 'translateX(-50%) rotate(-45deg)',
         width: '90px', // Adjust width and height for your button size
         height: '90px',
         display: 'flex',
