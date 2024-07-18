@@ -34,7 +34,7 @@ const Ball2 = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 300; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -185,18 +185,22 @@ const Ball2 = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                        if (index > 0) {
-                            const previousPosition = arr[index - 1];
+                    player.trail.forEach(segment => {
+                        if (segment.length > 1) {
                             ctx.beginPath();
-                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                            ctx.moveTo(segment[0].x * playZoneWidth, segment[0].y * playZoneHeight);
+
+                            for (let i = 1; i < segment.length; i++) {
+                                ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
+                            }
+
                             ctx.strokeStyle = 'blue';
                             ctx.lineWidth = ballSize * playZoneWidth / 4;
                             ctx.globalAlpha = 0.5;
                             ctx.stroke();
                         }
                     });
+
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
                     ctx.arc(
@@ -209,18 +213,20 @@ const Ball2 = () => {
                     ctx.fill();
                 });
             } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                    if (index > 0) {
-                        const previousPosition = arr[index - 1];
-                        ctx.beginPath();
-                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                        ctx.strokeStyle = 'blue';
-                        ctx.lineWidth = ballSize * playZoneWidth / 4;
-                        ctx.globalAlpha = 0.5;
-                        ctx.stroke();
+                if (trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(trail[0].x * playZoneWidth, trail[0].y * playZoneHeight);
+
+                    for (let i = 1; i < trail.length; i++) {
+                        ctx.lineTo(trail[i].x * playZoneWidth, trail[i].y * playZoneHeight);
                     }
-                });
+
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = ballSize * playZoneWidth / 4;
+                    ctx.globalAlpha = 0.5;
+                    ctx.stroke();
+                }
+
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
                 ctx.arc(
@@ -267,9 +273,7 @@ const Ball2 = () => {
                         fontSize: '16px',
                     }}
                 >
-
-
-
+                    Draw
                 </button>
             )}
         </div>
