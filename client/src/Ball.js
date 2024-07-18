@@ -9,8 +9,10 @@ const Ball = () => {
     const [position, setPosition] = useState({ x: 0.02, y: 0.02 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
+    const [trail, setTrail] = useState([]); // Define the trail state here
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
     const ballSize = 0.04;
+    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
 
     const playZoneAspectRatio = 1080 / 1920;
     const canvasRef = useRef(null);
@@ -181,23 +183,25 @@ const Ball = () => {
                 ctx.globalAlpha = 0.05;
                 ctx.lineWidth = 3;
 
-                player.trailSegments.forEach(segment => {
-                    ctx.beginPath();
-                    ctx.strokeStyle = 'blue';
+                if (player.trailSegments) {
+                    player.trailSegments.forEach(segment => {
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'blue';
 
-                    segment.forEach((trailPosition, index) => {
-                        const x = trailPosition.x * playZoneWidth;
-                        const y = trailPosition.y * playZoneHeight;
+                        segment.forEach((trailPosition, index) => {
+                            const x = trailPosition.x * playZoneWidth;
+                            const y = trailPosition.y * playZoneHeight;
 
-                        if (index === 0) {
-                            ctx.moveTo(x, y);
-                        } else {
-                            ctx.lineTo(x, y);
-                        }
+                            if (index === 0) {
+                                ctx.moveTo(x, y);
+                            } else {
+                                ctx.lineTo(x, y);
+                            }
+                        });
+
+                        ctx.stroke();
                     });
-
-                    ctx.stroke();
-                });
+                }
 
                 ctx.globalAlpha = 1.0;
 
