@@ -6,7 +6,7 @@ import { throttle } from 'lodash';
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 0.02, y: 0.02 });
+    const [position, setPosition] = useState({ x: 0.2, y: 0.2 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]); // Define the trail state here
@@ -205,11 +205,11 @@ const Ball = () => {
 
                 ctx.globalAlpha = 1.0;
 
-                // Draw player
+                // Draw player (red ball)
                 ctx.beginPath();
                 ctx.arc(
-                    position.x * playZoneWidth,
-                    position.y * playZoneHeight,
+                    player.position.x * playZoneWidth,
+                    player.position.y * playZoneHeight,
                     ballSize * playZoneWidth / 2,
                     0, 2 * Math.PI
                 );
