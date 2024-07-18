@@ -185,17 +185,17 @@ const Ball2 = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
-                        ctx.beginPath();
-                        ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.05;
-                        ctx.fill();
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
+                        if (index > 0) {
+                            const previousPosition = arr[index - 1];
+                            ctx.beginPath();
+                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
+                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                            ctx.strokeStyle = 'blue';
+                            ctx.lineWidth = ballSize * playZoneWidth / 4;
+                            ctx.globalAlpha = 0.5;
+                            ctx.stroke();
+                        }
                     });
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
@@ -209,17 +209,17 @@ const Ball2 = () => {
                     ctx.fill();
                 });
             } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
-                    ctx.beginPath();
-                    ctx.arc(
-                        trailPosition.x * playZoneWidth,
-                        trailPosition.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'blue';
-                    ctx.globalAlpha = 0.01;
-                    ctx.fill();
+                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
+                    if (index > 0) {
+                        const previousPosition = arr[index - 1];
+                        ctx.beginPath();
+                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
+                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                        ctx.strokeStyle = 'blue';
+                        ctx.lineWidth = ballSize * playZoneWidth / 4;
+                        ctx.globalAlpha = 0.5;
+                        ctx.stroke();
+                    }
                 });
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
