@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
-import { throttle } from 'lodash';
+import { throttle } from 'lodash'; // Import throttle function from lodash
+
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 0.2, y: 0.2 });
+    const [position, setPosition] = useState({ x: 0.02, y: 0.02 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
-    const [trail, setTrail] = useState([]); // Define the trail state here
+    const [trail, setTrail] = useState([]);
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
     const ballSize = 0.04;
-    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
 
     const playZoneAspectRatio = 1080 / 1920;
-    const canvasRef = useRef(null);
+
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -33,7 +33,14 @@ const Ball = () => {
         return { playZoneWidth, playZoneHeight };
     }, [playZoneAspectRatio]);
 
-    const [playZoneDimensions, setPlayZoneDimensions] = useState(calculatePlayZoneDimensions);
+    const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
+    const canvasRef = useRef(null);
+
+    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
+
+    useEffect(() => {
+        setPlayZoneDimensions(calculatePlayZoneDimensions());
+    }, [calculatePlayZoneDimensions]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -51,13 +58,13 @@ const Ball = () => {
             setPlayers(data);
         });
 
-        newSocket.on('playerMove', ({ playerId, position, trailSegments }) => {
+        newSocket.on('playerMove', ({ playerId, position, trail }) => {
             setPlayers(prevPlayers => ({
                 ...prevPlayers,
                 [playerId]: {
                     ...prevPlayers[playerId],
                     position,
-                    trailSegments: trailSegments || prevPlayers[playerId].trailSegments,
+                    trail: trail || prevPlayers[playerId].trail,
                 }
             }));
         });
@@ -90,9 +97,9 @@ const Ball = () => {
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {
             socket.emit('playerMove', data);
-        }, 50); // Reduced throttling interval to 50ms for more frequent updates
+        }, 2000);
 
-        const update = () => {
+        const interval = setInterval(() => {
             let newVelocity = {
                 x: velocity.x + acceleration.x,
                 y: velocity.y + acceleration.y
@@ -125,13 +132,12 @@ const Ball = () => {
 
                 return newPosition;
             });
+        }, 1000 / 60);
 
-            requestAnimationFrame(update); // Continue updating
+        return () => {
+            clearInterval(interval);
+            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
         };
-
-        update();
-
-        return () => emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
     }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
@@ -154,12 +160,12 @@ const Ball = () => {
     }, []);
 
     const handleTouchStart = (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(true);
     };
 
     const handleTouchEnd = (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(false);
     };
 
@@ -176,36 +182,46 @@ const Ball = () => {
 
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
-            Object.keys(players).forEach(playerId => {
-                const player = players[playerId];
-
-                // Draw player trail as lines
-                ctx.globalAlpha = 0.05;
-                ctx.lineWidth = 3;
-
-                if (player.trailSegments) {
-                    player.trailSegments.forEach(segment => {
+            if (!isPhone()) {
+                Object.keys(players).forEach(playerId => {
+                    const player = players[playerId];
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
                         ctx.beginPath();
-                        ctx.strokeStyle = 'blue';
-
-                        segment.forEach((trailPosition, index) => {
-                            const x = trailPosition.x * playZoneWidth;
-                            const y = trailPosition.y * playZoneHeight;
-
-                            if (index === 0) {
-                                ctx.moveTo(x, y);
-                            } else {
-                                ctx.lineTo(x, y);
-                            }
-                        });
-
-                        ctx.stroke();
+                        ctx.arc(
+                            trailPosition.x * playZoneWidth,
+                            trailPosition.y * playZoneHeight,
+                            ballSize * playZoneWidth / 2,
+                            0, 2 * Math.PI
+                        );
+                        ctx.fillStyle = 'blue';
+                        ctx.globalAlpha = 0.05;
+                        ctx.fill();
                     });
-                }
-
+                    ctx.globalAlpha = 1.0;
+                    ctx.beginPath();
+                    ctx.arc(
+                        player.position.x * playZoneWidth,
+                        player.position.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fill();
+                });
+            } else {
+                trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        trailPosition.x * playZoneWidth,
+                        trailPosition.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'blue';
+                    ctx.globalAlpha = 0.01;
+                    ctx.fill();
+                });
                 ctx.globalAlpha = 1.0;
-
-                // Draw player (red ball)
                 ctx.beginPath();
                 ctx.arc(
                     position.x * playZoneWidth,
@@ -215,27 +231,26 @@ const Ball = () => {
                 );
                 ctx.fillStyle = 'red';
                 ctx.fill();
-            });
-
-            requestAnimationFrame(draw); // Continue drawing
+            }
         };
 
         draw();
-    }, [players, ballSize, playZoneDimensions]);
+    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
+
 
     const buttonStyle = {
         position: 'absolute',
         bottom: '30px',
         left: '50%',
-        transform: 'translateX(-50%) rotate(-45deg)',
-        width: '90px',
+        transform: 'translateX(-50%)',
+        width: '90px', // Adjust width and height for your button size
         height: '90px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: '16px',
-        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000',
-        color: '#fff',
+        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
+        color: '#fff', // text color
         border: 'none',
         outline: 'none',
         borderRadius: '50%',
@@ -274,6 +289,7 @@ const Ball = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
                         <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
                     </svg>
+
                 </button>
             )}
         </div>
