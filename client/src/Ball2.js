@@ -34,7 +34,7 @@ const Ball2 = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 300; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -50,8 +50,6 @@ const Ball2 = () => {
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
-        //const newSocket = io('http://localhost:4000');
-
         setSocket(newSocket);
 
         newSocket.on('playerPositions', (data) => {
@@ -97,7 +95,7 @@ const Ball2 = () => {
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {
             socket.emit('playerMove', data);
-        }, 100); // Throttle to emit every 100ms
+        }, 2000);
 
         const interval = setInterval(() => {
             let newVelocity = {
@@ -167,6 +165,7 @@ const Ball2 = () => {
     const handleTouchEnd = (e) => {
         e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(false);
+        setTrail([]); // Clear the trail when the user stops drawing
     };
 
     useEffect(() => {
@@ -185,17 +184,17 @@ const Ball2 = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                        if (index > 0) {
-                            const previousPosition = arr[index - 1];
-                            ctx.beginPath();
-                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                            ctx.strokeStyle = 'blue';
-                            ctx.lineWidth = ballSize * playZoneWidth / 4;
-                            ctx.globalAlpha = 0.5;
-                            ctx.stroke();
-                        }
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                        ctx.beginPath();
+                        ctx.arc(
+                            trailPosition.x * playZoneWidth,
+                            trailPosition.y * playZoneHeight,
+                            ballSize * playZoneWidth / 2,
+                            0, 2 * Math.PI
+                        );
+                        ctx.fillStyle = 'blue';
+                        ctx.globalAlpha = 0.05;
+                        ctx.fill();
                     });
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
@@ -209,17 +208,17 @@ const Ball2 = () => {
                     ctx.fill();
                 });
             } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                    if (index > 0) {
-                        const previousPosition = arr[index - 1];
-                        ctx.beginPath();
-                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                        ctx.strokeStyle = 'blue';
-                        ctx.lineWidth = ballSize * playZoneWidth / 4;
-                        ctx.globalAlpha = 0.5;
-                        ctx.stroke();
-                    }
+                trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        trailPosition.x * playZoneWidth,
+                        trailPosition.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'blue';
+                    ctx.globalAlpha = 0.01;
+                    ctx.fill();
                 });
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
@@ -237,39 +236,55 @@ const Ball2 = () => {
         draw();
     }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
 
+    const buttonStyle = {
+        position: 'absolute',
+        bottom: '30px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '90px', // Adjust width and height for your button size
+        height: '90px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '16px',
+        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
+        color: '#fff', // text color
+        border: 'none',
+        outline: 'none',
+        borderRadius: '50%',
+    };
+
+    const svgStyle = {
+        verticalAlign: 'middle',
+    };
+
     return (
         <div style={{
             width: '100vw',
-            height: '100vh',
-            backgroundColor: 'transparent',
+            height: '100dvh',
+            backgroundColor: 'black',
             display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative',
             overflow: 'hidden',
-        }} className={"fullscreen-center"}>
-
-            <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
-                backgroundColor: 'white',
-                margin: 'auto',
-                overflow: 'hidden',
-            }} />
-
+        }}>
+            <canvas
+                ref={canvasRef}
+                style={{
+                    width: playZoneDimensions?.playZoneWidth || 0,
+                    height: playZoneDimensions?.playZoneHeight || 0,
+                }}
+            />
             {isPhone() && (
                 <button
+                    style={buttonStyle}
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
-                    style={{
-                        position: 'absolute',
-                        bottom: '20px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        padding: '20px 30px',
-                        fontSize: '16px',
-                    }}
                 >
-
-
-
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="white" width="24px" height="24px" style={svgStyle}>
+                        <path d="M256 32C132.288 32 32 132.288 32 256s100.288 224 224 224 224-100.288 224-224S379.712 32 256 32zm104 273H152c-13.255 0-24-10.745-24-24s10.745-24 24-24h208c13.255 0 24 10.745 24 24s-10.745 24-24 24z"/>
+                    </svg>
                 </button>
             )}
         </div>
