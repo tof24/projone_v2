@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
@@ -184,54 +183,35 @@ const Ball2 = () => {
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
             if (!isPhone()) {
-                Object.keys(players).forEach(playerId => {
-                    const player = players[playerId];
-                    player.trail.forEach(trailPosition => {
-                        ctx.beginPath();
-                        ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.05;
-                        ctx.fill();
-                    });
-                    ctx.globalAlpha = 1.0;
-                    ctx.beginPath();
-                    ctx.arc(
-                        player.position.x * playZoneWidth,
-                        player.position.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'darkolivegreen';
-                    ctx.fill();
-                });
-            } else {
+
+
+
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
 
                     // Draw player trail as lines
-                    ctx.beginPath();
-                    ctx.strokeStyle = 'blue';
                     ctx.globalAlpha = 0.05;
                     ctx.lineWidth = 3; // Adjust line width as needed
 
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index) => {
-                        const x = trailPosition.x * playZoneWidth;
-                        const y = trailPosition.y * playZoneHeight;
+                    player.trailSegments.forEach(segment => {
+                        ctx.beginPath();
+                        ctx.strokeStyle = 'blue';
 
-                        if (index === 0) {
-                            ctx.moveTo(x, y);
-                        } else {
-                            ctx.lineTo(x, y);
-                        }
+                        segment.forEach((trailPosition, index) => {
+                            const x = trailPosition.x * playZoneWidth;
+                            const y = trailPosition.y * playZoneHeight;
+
+                            if (index === 0) {
+                                ctx.moveTo(x, y);
+                            } else {
+                                ctx.lineTo(x, y);
+                            }
+                        });
+
+                        ctx.stroke();
                     });
 
-                    ctx.stroke();
-
+                    ctx.globalAlpha = 1.0;
 
                     // Draw player
                     ctx.beginPath();
@@ -244,6 +224,16 @@ const Ball2 = () => {
                     ctx.fillStyle = 'darkolivegreen';
                     ctx.fill();
                 });
+
+
+
+            } else {
+
+
+
+
+
+
             }
         };
 
