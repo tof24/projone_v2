@@ -208,8 +208,8 @@ const Ball = () => {
                 // Draw player (red ball)
                 ctx.beginPath();
                 ctx.arc(
-                    player.position.x * playZoneWidth,
-                    player.position.y * playZoneHeight,
+                    position.x * playZoneWidth,
+                    position.y * playZoneHeight,
                     ballSize * playZoneWidth / 2,
                     0, 2 * Math.PI
                 );
