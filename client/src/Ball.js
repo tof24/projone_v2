@@ -185,19 +185,28 @@ const Ball = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
-                        ctx.beginPath();
-                        ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.05;
-                        ctx.fill();
+
+                    // Draw player trail as lines
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'blue';
+                    ctx.globalAlpha = 0.05;
+                    ctx.lineWidth = 3; // Adjust line width as needed
+
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index) => {
+                        const x = trailPosition.x * playZoneWidth;
+                        const y = trailPosition.y * playZoneHeight;
+
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
                     });
-                    ctx.globalAlpha = 1.0;
+
+                    ctx.stroke();
+                    
+
+                    // Draw player
                     ctx.beginPath();
                     ctx.arc(
                         player.position.x * playZoneWidth,
@@ -242,7 +251,6 @@ const Ball = () => {
         position: 'absolute',
         bottom: '30px',
         left: '50%',
-        transform: 'translateX(-50%) rotate(-90deg)',
         width: '90px', // Adjust width and height for your button size
         height: '90px',
         display: 'flex',
