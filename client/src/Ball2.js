@@ -183,42 +183,21 @@ const Ball2 = () => {
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
             if (!isPhone()) {
+
+
+
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
-                        ctx.beginPath();
-                        ctx.arc(
-                            trailPosition.x * playZoneWidth,
-                            trailPosition.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'blue';
-                        ctx.globalAlpha = 0.05;
-                        ctx.fill();
-                    });
-                    ctx.globalAlpha = 1.0;
-                    ctx.beginPath();
-                    ctx.arc(
-                        player.position.x * playZoneWidth,
-                        player.position.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'darkolivegreen';
-                    ctx.fill();
-                });
-            } else {
-                    Object.keys(players).forEach(playerId => {
-                        const player = players[playerId];
 
-                        // Draw player trail as lines
+                    // Draw player trail as lines
+                    ctx.globalAlpha = 0.05;
+                    ctx.lineWidth = 3; // Adjust line width as needed
+
+                    player.trailSegments.forEach(segment => {
                         ctx.beginPath();
                         ctx.strokeStyle = 'blue';
-                        ctx.globalAlpha = 0.05;
-                        ctx.lineWidth = 3; // Adjust line width as needed
 
-                        player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index) => {
+                        segment.forEach((trailPosition, index) => {
                             const x = trailPosition.x * playZoneWidth;
                             const y = trailPosition.y * playZoneHeight;
 
@@ -230,19 +209,31 @@ const Ball2 = () => {
                         });
 
                         ctx.stroke();
-
-
-                        // Draw player
-                        ctx.beginPath();
-                        ctx.arc(
-                            player.position.x * playZoneWidth,
-                            player.position.y * playZoneHeight,
-                            ballSize * playZoneWidth / 2,
-                            0, 2 * Math.PI
-                        );
-                        ctx.fillStyle = 'darkolivegreen';
-                        ctx.fill();
                     });
+
+                    ctx.globalAlpha = 1.0;
+
+                    // Draw player
+                    ctx.beginPath();
+                    ctx.arc(
+                        player.position.x * playZoneWidth,
+                        player.position.y * playZoneHeight,
+                        ballSize * playZoneWidth / 2,
+                        0, 2 * Math.PI
+                    );
+                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fill();
+                });
+
+
+
+            } else {
+
+
+
+
+
+
             }
         };
 
