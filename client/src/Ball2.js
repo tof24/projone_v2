@@ -186,7 +186,7 @@ const Ball2 = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach(trailPosition => {
+                    player.trail.forEach(trailPosition => {
                         ctx.beginPath();
                         ctx.arc(
                             trailPosition.x * playZoneWidth,
