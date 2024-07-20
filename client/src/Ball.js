@@ -93,10 +93,6 @@ const Ball = () => {
     const maxVelocity = 0.1;
 
     useEffect(() => {
-        const emitPlayerMoveThrottled = throttle((data) => {
-            socket.emit('playerMove', data);
-        }, 2000);
-
         const interval = setInterval(() => {
             let newVelocity = {
                 x: velocity.x + acceleration.x,
@@ -116,27 +112,31 @@ const Ball = () => {
 
                 if (isDrawingTrail) {
                     setTrail(prevTrail => {
-                        const newTrail = [...prevTrail, newPosition];
-                        if (newTrail.length > MAX_TRAIL_LENGTH) {
-                            newTrail.shift(); // Remove the oldest position
+                        const newTrail = [...prevTrail];
+                        const currentSegment = newTrail[newTrail.length - 1] || [];
+                        currentSegment.push(newPosition);
+                        if (currentSegment.length > MAX_TRAIL_LENGTH) {
+                            currentSegment.shift();
                         }
+                        newTrail[newTrail.length - 1] = currentSegment;
                         return newTrail;
                     });
                 }
 
                 if (socket) {
-                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
+                    socket.emit('playerMove', {
+                        position: newPosition,
+                        trail: trail,
+                        isDrawingTrail
+                    });
                 }
 
                 return newPosition;
             });
         }, 1000 / 60);
 
-        return () => {
-            clearInterval(interval);
-            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
-        };
-    }, [acceleration, velocity, isDrawingTrail, socket]);
+        return () => clearInterval(interval);
+    }, [acceleration, velocity, isDrawingTrail, socket, trail]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
@@ -160,6 +160,7 @@ const Ball = () => {
     const handleTouchStart = (e) => {
         e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(true);
+        setTrail(prevTrail => [...prevTrail, [{ x: position.x, y: position.y }]]);
     };
 
     const handleTouchEnd = (e) => {
@@ -180,34 +181,11 @@ const Ball = () => {
 
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
-            if (!isPhone()) {
-                Object.keys(players).forEach(playerId => {
-                    const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                        if (index > 0) {
-                            const previousPosition = arr[index - 1];
-                            ctx.beginPath();
-                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                            ctx.strokeStyle = 'blue';
-                            ctx.lineWidth = ballSize * playZoneWidth / 4;
-                            ctx.globalAlpha = 0.5;
-                            ctx.stroke();
-                        }
-                    });
-                    ctx.globalAlpha = 1.0;
-                    ctx.beginPath();
-                    ctx.arc(
-                        player.position.x * playZoneWidth,
-                        player.position.y * playZoneHeight,
-                        ballSize * playZoneWidth / 2,
-                        0, 2 * Math.PI
-                    );
-                    ctx.fillStyle = 'darkolivegreen';
-                    ctx.fill();
-                });
-            } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
+            // Draw trail only for the local player
+            if (isPhone()) {
+                const localTrail = trail.flat(); // Flatten the trail array if necessary
+
+                localTrail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
                     if (index > 0) {
                         const previousPosition = arr[index - 1];
                         ctx.beginPath();
@@ -233,7 +211,7 @@ const Ball = () => {
         };
 
         draw();
-    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
+    }, [trail, position, playZoneDimensions, isPhone]);
 
     const buttonStyle = {
         position: 'absolute',

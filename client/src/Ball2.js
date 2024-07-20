@@ -221,6 +221,8 @@ const Ball2 = () => {
                         ctx.lineTo(trail[i].x * playZoneWidth, trail[i].y * playZoneHeight);
                     }
 
+
+
                     ctx.strokeStyle = 'blue';
                     ctx.lineWidth = ballSize * playZoneWidth / 4;
                     ctx.globalAlpha = 0.5;
