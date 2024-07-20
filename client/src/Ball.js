@@ -3,7 +3,6 @@ import io from 'socket.io-client';
 import './App.css';
 import { throttle } from 'lodash'; // Import throttle function from lodash
 
-
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
@@ -13,9 +12,9 @@ const Ball = () => {
     const [trail, setTrail] = useState([]);
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
     const ballSize = 0.04;
+    const maxVelocity = 0.1; // Define maximum velocity
 
     const playZoneAspectRatio = 1080 / 1920;
-
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -36,7 +35,14 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 200; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 3000; // Define maximum number of trail positions
+
+    // Throttled function definition
+    const emitPlayerMoveThrottled = useCallback(throttle((data) => {
+        if (socket) {
+            socket.emit('playerMove', data);
+        }
+    }, 1000), [socket]);
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -69,8 +75,82 @@ const Ball = () => {
             }));
         });
 
-        return () => newSocket.disconnect();
-    }, []);
+        return () => {
+            newSocket.disconnect();
+            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
+        };
+    }, [emitPlayerMoveThrottled]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            let newVelocity = {
+                x: velocity.x + acceleration.x,
+                y: velocity.y + acceleration.y
+            };
+
+            newVelocity.x = Math.min(Math.max(newVelocity.x, -maxVelocity), maxVelocity);
+            newVelocity.y = Math.min(Math.max(newVelocity.y, -maxVelocity), maxVelocity);
+
+            setVelocity(newVelocity);
+
+            setPosition(prevPosition => {
+                const newPosition = {
+                    x: prevPosition.x + newVelocity.x,
+                    y: prevPosition.y + newVelocity.y
+                };
+
+                if (isDrawingTrail) {
+                    setTrail(prevTrail => {
+                        const newTrail = [...prevTrail];
+                        const currentSegment = newTrail.length > 0 ? newTrail[newTrail.length - 1] : [];
+
+                        // Add new position to the current segment
+                        currentSegment.push(newPosition);
+
+                        // If the segment exceeds the max length, start a new segment
+                        if (currentSegment.length > MAX_TRAIL_LENGTH) {
+                            newTrail.push([currentSegment.pop()]); // Start a new segment
+                        }
+
+                        // Ensure the trail segments are handled correctly
+                        if (newTrail.length === 0 || newTrail[newTrail.length - 1].length === 0) {
+                            newTrail.push([newPosition]); // Start a new segment if necessary
+                        }
+
+                        return newTrail;
+                    });
+                }
+
+                // Emit player move using throttled function
+                emitPlayerMoveThrottled({
+                    position: newPosition,
+                    trail: trail,
+                    isDrawingTrail
+                });
+
+                return newPosition;
+            });
+        }, 1000 / 60);
+
+        return () => {
+            clearInterval(interval);
+            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
+        };
+    }, [acceleration, velocity, isDrawingTrail, emitPlayerMoveThrottled, trail]);
+
+    const handleBoundaryCollision = useCallback(() => {
+        if (position.x < 0 || position.x + ballSize > 1) {
+            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
+        }
+
+        if (position.y < 0 || position.y + ballSize > 1) {
+            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
+        }
+    }, [position, ballSize]);
+
+    useEffect(() => {
+        handleBoundaryCollision();
+    }, [position, ballSize, handleBoundaryCollision]);
 
     useEffect(() => {
         const handleDeviceOrientation = (event) => {
@@ -92,68 +172,6 @@ const Ball = () => {
         };
     }, []);
 
-    const maxVelocity = 0.1;
-
-    useEffect(() => {
-        const emitPlayerMoveThrottled = throttle((data) => {
-            socket.emit('playerMove', data);
-        }, 1000);
-
-        const interval = setInterval(() => {
-            let newVelocity = {
-                x: velocity.x + acceleration.x,
-                y: velocity.y + acceleration.y
-            };
-
-            newVelocity.x = Math.min(Math.max(newVelocity.x, -maxVelocity), maxVelocity);
-            newVelocity.y = Math.min(Math.max(newVelocity.y, -maxVelocity), maxVelocity);
-
-            setVelocity(newVelocity);
-
-            setPosition(prevPosition => {
-                const newPosition = {
-                    x: prevPosition.x + newVelocity.x,
-                    y: prevPosition.y + newVelocity.y
-                };
-
-                if (isDrawingTrail) {
-                    setTrail(prevTrail => {
-                        const newTrail = [...prevTrail, newPosition];
-                        if (newTrail.length > MAX_TRAIL_LENGTH) {
-                            newTrail.shift(); // Remove the oldest position
-                        }
-                        return newTrail;
-                    });
-                }
-
-                if (socket) {
-                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
-                }
-
-                return newPosition;
-            });
-        }, 1000 / 60);
-
-        return () => {
-            clearInterval(interval);
-            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
-        };
-    }, [acceleration, velocity, isDrawingTrail, socket]);
-
-    const handleBoundaryCollision = useCallback(() => {
-        if (position.x < 0 || position.x + ballSize > 1) {
-            setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
-        }
-
-        if (position.y < 0 || position.y + ballSize > 1) {
-            setVelocity(prevVelocity => ({ ...prevVelocity, y: -prevVelocity.y }));
-        }
-    }, [position, ballSize]);
-
-    useEffect(() => {
-        handleBoundaryCollision();
-    }, [position, ballSize, handleBoundaryCollision]);
-
     const isPhone = useCallback(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
@@ -162,6 +180,7 @@ const Ball = () => {
     const handleTouchStart = (e) => {
         e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(true);
+        setTrail(prevTrail => [...prevTrail, [{ x: position.x, y: position.y }]]);
     };
 
     const handleTouchEnd = (e) => {
@@ -183,20 +202,25 @@ const Ball = () => {
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
             if (!isPhone()) {
+                // Draw trails for all players
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                        if (index > 0) {
-                            const previousPosition = arr[index - 1];
+                    player.trail.forEach((segment, segmentIndex) => {
+                        if (segment.length > 1) {
                             ctx.beginPath();
-                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                            ctx.moveTo(segment[0].x * playZoneWidth, segment[0].y * playZoneHeight);
+
+                            for (let i = 1; i < segment.length; i++) {
+                                ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
+                            }
+
                             ctx.strokeStyle = 'blue';
                             ctx.lineWidth = ballSize * playZoneWidth / 4;
                             ctx.globalAlpha = 0.5;
                             ctx.stroke();
                         }
                     });
+
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
                     ctx.arc(
@@ -209,18 +233,25 @@ const Ball = () => {
                     ctx.fill();
                 });
             } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                    if (index > 0) {
-                        const previousPosition = arr[index - 1];
+                // Draw local player's trail
+                const localTrail = trail;
+
+                localTrail.forEach((segment, segmentIndex) => {
+                    if (segment.length > 1) {
                         ctx.beginPath();
-                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                        ctx.moveTo(segment[0].x * playZoneWidth, segment[0].y * playZoneHeight);
+
+                        for (let i = 1; i < segment.length; i++) {
+                            ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
+                        }
+
                         ctx.strokeStyle = 'blue';
                         ctx.lineWidth = ballSize * playZoneWidth / 4;
                         ctx.globalAlpha = 0.5;
                         ctx.stroke();
                     }
                 });
+
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
                 ctx.arc(
@@ -236,7 +267,6 @@ const Ball = () => {
 
         draw();
     }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
-
 
     const buttonStyle = {
         position: 'absolute',
@@ -289,9 +319,6 @@ const Ball = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
                         <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
                     </svg>
-
-
-
                 </button>
             )}
         </div>
