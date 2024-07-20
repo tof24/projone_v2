@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import './App.css';
 import { throttle } from 'lodash'; // Import throttle function from lodash
 
+
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
@@ -14,6 +15,7 @@ const Ball = () => {
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
+
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -34,7 +36,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 3000; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 200; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -93,6 +95,10 @@ const Ball = () => {
     const maxVelocity = 0.1;
 
     useEffect(() => {
+        const emitPlayerMoveThrottled = throttle((data) => {
+            socket.emit('playerMove', data);
+        }, 1000);
+
         const interval = setInterval(() => {
             let newVelocity = {
                 x: velocity.x + acceleration.x,
@@ -112,29 +118,26 @@ const Ball = () => {
 
                 if (isDrawingTrail) {
                     setTrail(prevTrail => {
-                        const newTrail = [...prevTrail];
-                        const currentSegment = newTrail[newTrail.length - 1];
-                        currentSegment.push(newPosition);
-                        if (currentSegment.length > MAX_TRAIL_LENGTH) {
-                            currentSegment.shift();
+                        const newTrail = [...prevTrail, newPosition];
+                        if (newTrail.length > MAX_TRAIL_LENGTH) {
+                            newTrail.shift(); // Remove the oldest position
                         }
                         return newTrail;
                     });
                 }
 
                 if (socket) {
-                    socket.emit('playerMove', {
-                        position: newPosition,
-                        trail: trail,
-                        isDrawingTrail
-                    });
+                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
                 }
 
                 return newPosition;
             });
         }, 1000 / 60);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
+        };
     }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
@@ -159,7 +162,6 @@ const Ball = () => {
     const handleTouchStart = (e) => {
         e.preventDefault(); // Prevent default touch behavior
         setIsDrawingTrail(true);
-        setTrail(prevTrail => [...prevTrail, [{ x: position.x, y: position.y }]]);
     };
 
     const handleTouchEnd = (e) => {
@@ -207,8 +209,6 @@ const Ball = () => {
                     ctx.fill();
                 });
             } else {
-                const trail = player.trail.flat(); // Flatten the trail array if necessary
-
                 trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
                     if (index > 0) {
                         const previousPosition = arr[index - 1];
@@ -236,6 +236,7 @@ const Ball = () => {
 
         draw();
     }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
+
 
     const buttonStyle = {
         position: 'absolute',
@@ -272,8 +273,8 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? ${playZoneDimensions.playZoneWidth}px : '100%',
-                height: playZoneDimensions ? ${playZoneDimensions.playZoneHeight}px : '100%',
+                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
+                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden',
@@ -288,6 +289,9 @@ const Ball = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
                         <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
                     </svg>
+
+
+
                 </button>
             )}
         </div>
