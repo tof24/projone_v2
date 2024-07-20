@@ -110,6 +110,7 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
+                // Only update trail if it's changing
                 if (isDrawingTrail) {
                     setTrail(prevTrail => {
                         const newTrail = [...prevTrail];
@@ -118,20 +119,23 @@ const Ball = () => {
                         // Add new position to the current segment
                         currentSegment.push(newPosition);
 
-                        // If the segment exceeds the max length, start a new segment
+                        // Ensure segment length does not exceed MAX_TRAIL_LENGTH
                         if (currentSegment.length > MAX_TRAIL_LENGTH) {
-                            newTrail.push([currentSegment.pop()]); // Start a new segment
+                            currentSegment.shift(); // Remove the oldest position
                         }
 
-                        // Ensure the trail segments are handled correctly
+                        // Ensure a new segment is created if the last segment is empty
                         if (newTrail.length === 0 || newTrail[newTrail.length - 1].length === 0) {
-                            newTrail.push([newPosition]); // Start a new segment if necessary
+                            newTrail.push([newPosition]);
+                        } else if (currentSegment.length > 0) {
+                            newTrail[newTrail.length - 1] = currentSegment;
                         }
 
                         return newTrail;
                     });
                 }
 
+                // Emit to backend
                 if (socket) {
                     socket.emit('playerMove', {
                         position: newPosition,
