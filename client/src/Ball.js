@@ -191,6 +191,7 @@ const Ball = () => {
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
             if (!isPhone()) {
+                // Draw trails for all players
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
                     player.trail.forEach((segment, segmentIndex) => {
@@ -221,9 +222,9 @@ const Ball = () => {
                     ctx.fill();
                 });
             } else {
-                const localTrail = trail.flat(); // Flatten the trail array if necessary
+                // Draw local player's trail
+                const localTrail = trail;
 
-                // Draw each segment of the trail
                 localTrail.forEach((segment, segmentIndex) => {
                     if (segment.length > 1) {
                         ctx.beginPath();
