@@ -110,32 +110,18 @@ const Ball = () => {
                     y: prevPosition.y + newVelocity.y
                 };
 
-                // Only update trail if it's changing
                 if (isDrawingTrail) {
                     setTrail(prevTrail => {
                         const newTrail = [...prevTrail];
-                        const currentSegment = newTrail.length > 0 ? newTrail[newTrail.length - 1] : [];
-
-                        // Add new position to the current segment
+                        const currentSegment = newTrail[newTrail.length - 1];
                         currentSegment.push(newPosition);
-
-                        // Ensure segment length does not exceed MAX_TRAIL_LENGTH
                         if (currentSegment.length > MAX_TRAIL_LENGTH) {
-                            currentSegment.shift(); // Remove the oldest position
+                            currentSegment.shift();
                         }
-
-                        // Ensure a new segment is created if the last segment is empty
-                        if (newTrail.length === 0 || newTrail[newTrail.length - 1].length === 0) {
-                            newTrail.push([newPosition]);
-                        } else if (currentSegment.length > 0) {
-                            newTrail[newTrail.length - 1] = currentSegment;
-                        }
-
                         return newTrail;
                     });
                 }
 
-                // Emit to backend
                 if (socket) {
                     socket.emit('playerMove', {
                         position: newPosition,
@@ -149,7 +135,7 @@ const Ball = () => {
         }, 1000 / 60);
 
         return () => clearInterval(interval);
-    }, [acceleration, velocity, isDrawingTrail, socket, trail]);
+    }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
@@ -195,25 +181,20 @@ const Ball = () => {
             ctx.clearRect(0, 0, playZoneWidth, playZoneHeight);
 
             if (!isPhone()) {
-                // Draw trails for all players
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.forEach((segment, segmentIndex) => {
-                        if (segment.length > 1) {
+                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
+                        if (index > 0) {
+                            const previousPosition = arr[index - 1];
                             ctx.beginPath();
-                            ctx.moveTo(segment[0].x * playZoneWidth, segment[0].y * playZoneHeight);
-
-                            for (let i = 1; i < segment.length; i++) {
-                                ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
-                            }
-
+                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
+                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
                             ctx.strokeStyle = 'blue';
                             ctx.lineWidth = ballSize * playZoneWidth / 4;
                             ctx.globalAlpha = 0.5;
                             ctx.stroke();
                         }
                     });
-
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
                     ctx.arc(
@@ -226,25 +207,20 @@ const Ball = () => {
                     ctx.fill();
                 });
             } else {
-                // Draw local player's trail
-                const localTrail = trail;
+                const trail = player.trail.flat(); // Flatten the trail array if necessary
 
-                localTrail.forEach((segment, segmentIndex) => {
-                    if (segment.length > 1) {
+                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
+                    if (index > 0) {
+                        const previousPosition = arr[index - 1];
                         ctx.beginPath();
-                        ctx.moveTo(segment[0].x * playZoneWidth, segment[0].y * playZoneHeight);
-
-                        for (let i = 1; i < segment.length; i++) {
-                            ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
-                        }
-
+                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
+                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
                         ctx.strokeStyle = 'blue';
                         ctx.lineWidth = ballSize * playZoneWidth / 4;
                         ctx.globalAlpha = 0.5;
                         ctx.stroke();
                     }
                 });
-
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
                 ctx.arc(
@@ -296,8 +272,8 @@ const Ball = () => {
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
-                width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
-                height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
+                width: playZoneDimensions ? ${playZoneDimensions.playZoneWidth}px : '100%',
+                height: playZoneDimensions ? ${playZoneDimensions.playZoneHeight}px : '100%',
                 backgroundColor: 'white',
                 position: 'relative',
                 overflow: 'hidden',
