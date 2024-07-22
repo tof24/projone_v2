@@ -69,7 +69,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: calc(100vw - 150px); /* Adjust height as needed to accommodate the title and button */
+    height: calc(100dvw - 150px); /* Adjust height as needed to accommodate the title and button */
 }
 
 .mobile-column {
@@ -99,7 +99,7 @@ p {
 /* Rotation styles */
 .rotate-screen {
     width: 100vh;
-    height: 100vw;
+    height: 100dvw;
     transform: rotate(90deg);
     transform-origin: center center;
     position: absolute;
