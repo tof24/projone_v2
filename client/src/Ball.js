@@ -273,7 +273,7 @@ const Ball = () => {
             position: 'relative',
         }} className={"fullscreen-center"}>
 
-            <Orientation></Orientation>
+
 
             <canvas ref={canvasRef} style={{
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
@@ -282,8 +282,10 @@ const Ball = () => {
                 position: 'relative',
                 overflow: 'hidden',
             }} />
+            <Orientation></Orientation>
 
             {isPhone() && (
+
                 <button
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
