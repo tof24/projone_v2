@@ -6,6 +6,7 @@ import "./App.css"
 import React, {useCallback, useEffect, useState} from "react";
 import Ball2 from "./Ball2";
 import StartScreen from "./StartScreen";
+import MobileStartScreen from "./MobileStartScreen";
 
 
 
@@ -29,7 +30,7 @@ function App() {
             "grainHeight": 1.79,
         };
         if (window.grained) {
-            window.grained(document.getElementById('pc'), options);
+            window.grained(document.getElementById('beggin'), options);
         }
     }, []);
 
@@ -45,23 +46,41 @@ function App() {
 
     return (
         <div>
-            <div id={"pc"} className={"display"}>
+        <div className={"bgbg"} id={"beggin"}>
 
-                {!isPhone() && (
+            {!isStart && !isPhone() && (
+                <div>
+                    <StartScreen isStart={isStart} setIsStart={setIsStart}></StartScreen>
+                </div>
+            )}
+
+            {!isPhone() && isStart &&(
+            <div className={"display"}>
+
+
                     <div>
                         <div className={"zoomed-div"}>
                             <Ball2 class={""} />
                         </div>
                     </div>
-                )}
-                {isPhone() && (
-                    <div>
-                        <Portrait />
-                        <Ball />
-                    </div>
-                )}
-            </div>
 
+            </div>
+            )}
+
+        </div>
+
+            {isPhone() && isStart && (
+                <div>
+                    <Portrait />
+                    <Ball />
+                </div>
+            )}
+
+            {isPhone() && !isStart && (
+                <div>
+                    <MobileStartScreen isStart={isStart} setIsStart={setIsStart}></MobileStartScreen>
+                </div>
+            )}
 
         </div>
     );

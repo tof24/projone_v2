@@ -93,7 +93,7 @@ const Ball = () => {
         };
     }, []);
 
-    const maxVelocity = 0.1;
+    const maxVelocity = 0.001;
 
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {

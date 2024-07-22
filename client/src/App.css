@@ -28,14 +28,24 @@
 
   }
 
-  @keyframes moveGradients {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(100%, 100%);
-    }
+  body{
+    background-blend-mode: multiply;
+    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
   }
+
+  #beggin::before{
+    z-index: -1000 !important;
+  }
+
+  .bgbg{
+
+
+  }
+
+  .front{
+    z-index: 1000;
+  }
+
 
 
 

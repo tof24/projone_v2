@@ -1,0 +1,110 @@
+/* General styles for both screens */
+.start-screen, .mobile-start-screen {
+    height: 100vh;
+    text-align: center;
+    color: #d9dadb;
+    font-family: 'IBM Plex Mono', monospace; /* Update to use the new font */
+    overflow: hidden;
+}
+
+.title {
+    font-family: 'Futura PT Heavy Italic', sans-serif; /* Ensure this matches the actual font-family name */
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #A7B2AD;
+    font-style: italic; /* Make sure the font style is italic */
+}
+
+.start-button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background-color: #A7B2AD;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #333;
+    margin-top: 20px; /* Add some margin to separate the button from the content */
+}
+
+.start-button:hover {
+    background-color: #adb5bd;
+}
+
+/* Desktop-specific styles */
+.content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: calc(100vh - 250px); /* Adjust height as needed to accommodate the title and button */
+    position: relative; /* Needed for the pseudo-element */
+}
+
+.Mcontent {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: calc(100vh - 250px); /* Adjust height as needed to accommodate the title and button */
+    position: relative; /* Needed for the pseudo-element */
+}
+
+.content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    border-left: 2px dashed #A7B2AD; /* Dashed line */
+}
+
+.column {
+    text-align: center;
+    width: 45%; /* Adjust width if needed */
+}
+
+/* Mobile-specific styles */
+.mobile-start-screen .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vw - 150px); /* Adjust height as needed to accommodate the title and button */
+}
+
+.mobile-column {
+    text-align: center;
+    height: 90%; /* Adjust width if needed */
+    margin-bottom: 20px;
+}
+
+.icon {
+    width: 50px; /* Adjust as necessary */
+    height: auto;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #A7B2AD;
+}
+
+p {
+    font-size: 1em;
+    line-height: 1.5;
+    color: #A7B2AD;
+}
+
+/* Rotation styles */
+.rotate-screen {
+    width: 100vh;
+    height: 100vw;
+    transform: rotate(90deg);
+    transform-origin: center center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -50vh; /* Centers the rotated content */
+    margin-top: -50vw; /* Centers the rotated content */
+}
