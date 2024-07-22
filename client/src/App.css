@@ -1,108 +1,114 @@
-.fullscreen-center {
-  width: 100vw;
-  height: 100vh;
-  background-color: black;
-  display: flex;
-  align-items: center;
-  overflow: hidden; /* Prevent scrolling */
-  position: relative;
-}
-
-@media (min-width: 1024px), /* Desktop */
-(orientation: landscape) /* Landscape devices */ {
   .fullscreen-center {
-    transform: rotate(-90deg);
-    transform-origin: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    overflow: hidden; /* Prevent scrolling */
+    position: relative;
   }
-}
 
-#pc.display {
-
-  background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
-  background-blend-mode: multiply;
-  color: white;
-
-  overflow: hidden;
-  position: relative;
-
-}
-
-@keyframes moveGradients {
-  0% {
-    transform: translate(0, 0);
+  @media (min-width: 1024px), /* Desktop */
+  (orientation: landscape) /* Landscape devices */ {
+    .fullscreen-center {
+      transform: rotate(-90deg);
+      transform-origin: center;
+    }
   }
-  100% {
-    transform: translate(100%, 100%);
+
+  #pc.display {
+
+    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
+    background-blend-mode: multiply;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    z-index: -1;
+
   }
-}
+
+  @keyframes moveGradients {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(100%, 100%);
+    }
+  }
 
 
 
-/* Adding grain using pseudo-elements */
-#pc.display::after {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: -10px;
-  width: 100%;
-  height: 100%;
-  background:
-          linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px,
-          linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px;
-  pointer-events: none; /* Prevents the pseudo-element from intercepting pointer events */
-}
+  /* Adding grain using pseudo-elements */
+  #pc.display::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -10px;
+    width: 100%;
+    height: 100%;
+    background:
+            linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px,
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px) 0 0/4px 4px;
+
+  }
 
 
-.zoomed-div {
-  transform: scale(1.5); /* Adjust the scale value as needed */
-  transform-origin: center; /* Center the zoom */
-  width: 100vw; /* Ensure the div takes full viewport width */
-  height: 100vh; /* Ensure the div takes full viewport height */
-  display: flex; /* Use flexbox to center content */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-}
+  .zoomed-div {
+    transform: scale(1.5); /* Adjust the scale value as needed */
+    transform-origin: center; /* Center the zoom */
+    width: 100vw; /* Ensure the div takes full viewport width */
+    height: 100vh; /* Ensure the div takes full viewport height */
+    display: flex; /* Use flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+  }
 
 
-.test{
-  color: white;
-  z-index: 1000;
-}
+  .test{
+    color: white;
+    z-index: 1000;
+  }
 
 
-.modal {
-  display: flex; /* Use flexbox for centering */
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-}
+  .modal {
+    display: flex; /* Use flexbox for centering */
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  }
 
-.modal-content {
-  background-color: #fefefe;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
-}
+  .modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+  }
 
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
 
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .zindex{
+    padding: 100px;
+    z-index: 1000;
+  }

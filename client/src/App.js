@@ -3,14 +3,19 @@ import Orientation from "./Orientation";
 import Ball from "./Ball";
 import Portrait from "./Portrait";
 import "./App.css"
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Ball2 from "./Ball2";
+import StartScreen from "./StartScreen";
 
 
 
 
 
 function App() {
+
+    const [isStart, setIsStart] = useState(false);
+
+    console.log()
 
 
     useEffect(() => {
@@ -32,26 +37,32 @@ function App() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
     }, []);
+
+
+    const handleClick = () =>{
+        console.log("rewrwer")
+    }
+
     return (
         <div>
-            <div>
-                {isPhone() && (
-                    <div>
-                        <Portrait></Portrait>
-                        <Ball></Ball>
-                    </div>
-                )}
+            <div id={"pc"} className={"display"}>
+
                 {!isPhone() && (
-                    <div id={"pc"} className={"display"}>
+                    <div>
                         <div className={"zoomed-div"}>
-                            <Ball2  class={""}></Ball2>
+                            <Ball2 class={""} />
                         </div>
                     </div>
                 )}
-
             </div>
-        </div>
 
+            {isPhone() && (
+                <div>
+                    <Portrait />
+                    <Ball />
+                </div>
+            )}
+        </div>
     );
 }
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
-import { throttle } from 'lodash'; // Import throttle function from lodash
+import { throttle } from 'lodash';
+import Orientation from "./Orientation"; // Import throttle function from lodash
 
 
 const Ball = () => {
@@ -36,7 +37,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 200; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 3000; // Define maximum number of trail positions
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -97,7 +98,7 @@ const Ball = () => {
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {
             socket.emit('playerMove', data);
-        }, 1000);
+        }, 2000);
 
         const interval = setInterval(() => {
             let newVelocity = {
@@ -271,6 +272,8 @@ const Ball = () => {
             overflow: 'hidden',
             position: 'relative',
         }} className={"fullscreen-center"}>
+
+            <Orientation></Orientation>
 
             <canvas ref={canvasRef} style={{
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',

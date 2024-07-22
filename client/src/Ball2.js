@@ -92,53 +92,6 @@ const Ball2 = () => {
         };
     }, []);
 
-    const maxVelocity = 0.1;
-
-    useEffect(() => {
-        const emitPlayerMoveThrottled = throttle((data) => {
-            socket.emit('playerMove', data);
-        }, 100); // Throttle to emit every 100ms
-
-        const interval = setInterval(() => {
-            let newVelocity = {
-                x: velocity.x + acceleration.x,
-                y: velocity.y + acceleration.y
-            };
-
-            newVelocity.x = Math.min(Math.max(newVelocity.x, -maxVelocity), maxVelocity);
-            newVelocity.y = Math.min(Math.max(newVelocity.y, -maxVelocity), maxVelocity);
-
-            setVelocity(newVelocity);
-
-            setPosition(prevPosition => {
-                const newPosition = {
-                    x: prevPosition.x + newVelocity.x,
-                    y: prevPosition.y + newVelocity.y
-                };
-
-                if (isDrawingTrail) {
-                    setTrail(prevTrail => {
-                        const newTrail = [...prevTrail, newPosition];
-                        if (newTrail.length > MAX_TRAIL_LENGTH) {
-                            newTrail.shift(); // Remove the oldest position
-                        }
-                        return newTrail;
-                    });
-                }
-
-                if (socket) {
-                    emitPlayerMoveThrottled({ position: newPosition, isDrawingTrail });
-                }
-
-                return newPosition;
-            });
-        }, 1000 / 60);
-
-        return () => {
-            clearInterval(interval);
-            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
-        };
-    }, [acceleration, velocity, isDrawingTrail, socket]);
 
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
