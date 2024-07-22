@@ -54,14 +54,15 @@ function App() {
                         </div>
                     </div>
                 )}
+                {isPhone() && (
+                    <div>
+                        <Portrait />
+                        <Ball />
+                    </div>
+                )}
             </div>
 
-            {isPhone() && (
-                <div>
-                    <Portrait />
-                    <Ball />
-                </div>
-            )}
+
         </div>
     );
 }

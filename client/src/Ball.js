@@ -282,7 +282,7 @@ const Ball = () => {
                 position: 'relative',
                 overflow: 'hidden',
             }} />
-            
+
 
             {isPhone() && (
 
