@@ -70,12 +70,14 @@
     align-items: center;
     justify-content: center;
     height: calc(100dvw - 150px); /* Adjust height as needed to accommodate the title and button */
+
 }
 
 .mobile-column {
     text-align: center;
     height: 90%; /* Adjust width if needed */
     margin-bottom: 20px;
+    width: 80vh;
 }
 
 .icon {
@@ -98,6 +100,8 @@ p {
 
 /* Rotation styles */
 .rotate-screen {
+    background-blend-mode: multiply;
+    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
     width: 100vh;
     height: 100dvw;
     transform: rotate(90deg);
