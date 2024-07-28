@@ -246,6 +246,28 @@ const Ball = () => {
         draw();
     }, [players, position, trail, ballSize, playZoneDimensions, isPhone, playerColor, trailColor]);
 
+    const buttonStyle = {
+        position: 'absolute',
+        bottom: '30px',
+        left: '50%',
+        transform: 'translateX(-50%) rotate(90deg)',
+        width: '90px', // Adjust width and height for your button size
+        height: '90px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '16px',
+        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
+        color: '#fff', // text color
+        border: 'none',
+        outline: 'none',
+        borderRadius: '50%',
+    };
+
+    const svgStyle = {
+        verticalAlign: 'middle',
+    };
+
     return (
         <div style={{
             width: '100vw',
@@ -267,16 +289,14 @@ const Ball = () => {
                 <button
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
-                    style={{
-                        position: 'absolute',
-                        bottom: '20px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        padding: '20px 30px',
-                        fontSize: '16px',
-                    }}
+                    style={buttonStyle}
                 >
-                    Draw
+                    <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
+                        <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
+                    </svg>
+
+
+
                 </button>
             )}
         </div>
