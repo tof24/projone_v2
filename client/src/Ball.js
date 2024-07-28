@@ -271,10 +271,13 @@ const Ball = () => {
     return (
         <div style={{
             width: '100vw',
-            height: '100vh',
-            backgroundColor: 'transparent',
+            height: '100dvh',
+            backgroundColor: 'black',
             display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             overflow: 'hidden',
+            position: 'relative',
         }} className={"fullscreen-center"}>
 
             <canvas ref={canvasRef} style={{
