@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 import { throttle } from 'lodash';
-import Orientation from "./Orientation"; // Import throttle function from lodash
-
 
 const Ball = () => {
     const [socket, setSocket] = useState(null);
@@ -13,10 +11,11 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]);
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
+    const [playerColor, setPlayerColor] = useState('#ff0000'); // Default color, will be updated from server
+    const [trailColor, setTrailColor] = useState('#0000ff'); // Default trail color, will be updated from server
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
-
 
     const calculatePlayZoneDimensions = useCallback(() => {
         const viewportWidth = window.innerWidth;
@@ -37,7 +36,7 @@ const Ball = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 3000; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 3000;
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -57,15 +56,21 @@ const Ball = () => {
 
         newSocket.on('playerPositions', (data) => {
             setPlayers(data);
+            if (data[newSocket.id]) {
+                setPlayerColor(data[newSocket.id].playerColor);
+                setTrailColor(data[newSocket.id].trailColor);
+            }
         });
 
-        newSocket.on('playerMove', ({ playerId, position, trail }) => {
+        newSocket.on('playerMove', ({ playerId, position, trail, playerColor, trailColor }) => {
             setPlayers(prevPlayers => ({
                 ...prevPlayers,
                 [playerId]: {
                     ...prevPlayers[playerId],
                     position,
                     trail: trail || prevPlayers[playerId].trail,
+                    playerColor: playerColor || prevPlayers[playerId].playerColor,
+                    trailColor: trailColor || prevPlayers[playerId].trailColor,
                 }
             }));
         });
@@ -121,7 +126,7 @@ const Ball = () => {
                     setTrail(prevTrail => {
                         const newTrail = [...prevTrail, newPosition];
                         if (newTrail.length > MAX_TRAIL_LENGTH) {
-                            newTrail.shift(); // Remove the oldest position
+                            newTrail.shift();
                         }
                         return newTrail;
                     });
@@ -137,7 +142,7 @@ const Ball = () => {
 
         return () => {
             clearInterval(interval);
-            emitPlayerMoveThrottled.cancel(); // Cancel throttled function on component unmount
+            emitPlayerMoveThrottled.cancel();
         };
     }, [acceleration, velocity, isDrawingTrail, socket]);
 
@@ -161,12 +166,12 @@ const Ball = () => {
     }, []);
 
     const handleTouchStart = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         setIsDrawingTrail(true);
     };
 
     const handleTouchEnd = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         setIsDrawingTrail(false);
     };
 
@@ -186,18 +191,19 @@ const Ball = () => {
             if (!isPhone()) {
                 Object.keys(players).forEach(playerId => {
                     const player = players[playerId];
-                    player.trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                        if (index > 0) {
-                            const previousPosition = arr[index - 1];
+                    player.trail.forEach((trailPosition, index, array) => {
+                        if (index < array.length - 1) {
+                            const nextTrailPosition = array[index + 1];
                             ctx.beginPath();
-                            ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                            ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                            ctx.strokeStyle = 'blue';
+                            ctx.moveTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
+                            ctx.lineTo(nextTrailPosition.x * playZoneWidth, nextTrailPosition.y * playZoneHeight);
+                            ctx.strokeStyle = player.trailColor;
                             ctx.lineWidth = ballSize * playZoneWidth / 4;
                             ctx.globalAlpha = 0.5;
                             ctx.stroke();
                         }
                     });
+
                     ctx.globalAlpha = 1.0;
                     ctx.beginPath();
                     ctx.arc(
@@ -206,22 +212,24 @@ const Ball = () => {
                         ballSize * playZoneWidth / 2,
                         0, 2 * Math.PI
                     );
-                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fillStyle = player.playerColor;
                     ctx.fill();
                 });
             } else {
-                trail.slice(-MAX_TRAIL_LENGTH).forEach((trailPosition, index, arr) => {
-                    if (index > 0) {
-                        const previousPosition = arr[index - 1];
-                        ctx.beginPath();
-                        ctx.moveTo(previousPosition.x * playZoneWidth, previousPosition.y * playZoneHeight);
-                        ctx.lineTo(trailPosition.x * playZoneWidth, trailPosition.y * playZoneHeight);
-                        ctx.strokeStyle = 'blue';
-                        ctx.lineWidth = ballSize * playZoneWidth / 4;
-                        ctx.globalAlpha = 0.5;
-                        ctx.stroke();
+                if (trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(trail[0].x * playZoneWidth, trail[0].y * playZoneHeight);
+
+                    for (let i = 1; i < trail.length; i++) {
+                        ctx.lineTo(trail[i].x * playZoneWidth, trail[i].y * playZoneHeight);
                     }
-                });
+
+                    ctx.strokeStyle = trailColor;
+                    ctx.lineWidth = ballSize * playZoneWidth / 4;
+                    ctx.globalAlpha = 0.5;
+                    ctx.stroke();
+                }
+
                 ctx.globalAlpha = 1.0;
                 ctx.beginPath();
                 ctx.arc(
@@ -230,73 +238,45 @@ const Ball = () => {
                     ballSize * playZoneWidth / 2,
                     0, 2 * Math.PI
                 );
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = playerColor;
                 ctx.fill();
             }
         };
 
         draw();
-    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
-
-
-    const buttonStyle = {
-        position: 'absolute',
-        bottom: '30px',
-        left: '50%',
-        transform: 'translateX(-50%) rotate(90deg)',
-        width: '90px', // Adjust width and height for your button size
-        height: '90px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '16px',
-        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
-        color: '#fff', // text color
-        border: 'none',
-        outline: 'none',
-        borderRadius: '50%',
-    };
-
-    const svgStyle = {
-        verticalAlign: 'middle',
-    };
+    }, [players, position, trail, ballSize, playZoneDimensions, isPhone, playerColor, trailColor]);
 
     return (
         <div style={{
             width: '100vw',
-            height: '100dvh',
-            backgroundColor: 'black',
+            height: '100vh',
+            backgroundColor: 'transparent',
             display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
             overflow: 'hidden',
-            position: 'relative',
         }} className={"fullscreen-center"}>
-
-
 
             <canvas ref={canvasRef} style={{
                 width: playZoneDimensions ? `${playZoneDimensions.playZoneWidth}px` : '100%',
                 height: playZoneDimensions ? `${playZoneDimensions.playZoneHeight}px` : '100%',
                 backgroundColor: 'white',
-                position: 'relative',
+                margin: 'auto',
                 overflow: 'hidden',
             }} />
 
-
             {isPhone() && (
-
                 <button
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
-                    style={buttonStyle}
+                    style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        padding: '20px 30px',
+                        fontSize: '16px',
+                    }}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
-                        <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
-                    </svg>
-
-
-
+                    Draw
                 </button>
             )}
         </div>

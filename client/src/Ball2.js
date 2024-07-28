@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
-import { throttle } from 'lodash'; // Import throttle function from lodash
+import { throttle } from 'lodash';
 
 const Ball2 = () => {
     const [socket, setSocket] = useState(null);
@@ -11,6 +11,8 @@ const Ball2 = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]);
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
+    const [playerColor, setPlayerColor] = useState('#ff0000'); // Default color, will be updated from server
+    const [trailColor, setTrailColor] = useState('#0000ff'); // Default trail color, will be updated from server
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
@@ -34,7 +36,7 @@ const Ball2 = () => {
     const [playZoneDimensions, setPlayZoneDimensions] = useState(null);
     const canvasRef = useRef(null);
 
-    const MAX_TRAIL_LENGTH = 150; // Define maximum number of trail positions
+    const MAX_TRAIL_LENGTH = 150;
 
     useEffect(() => {
         setPlayZoneDimensions(calculatePlayZoneDimensions());
@@ -50,21 +52,25 @@ const Ball2 = () => {
 
     useEffect(() => {
         const newSocket = io('wss://achieved-safe-scourge.glitch.me/');
-        //const newSocket = io('http://localhost:4000');
-
         setSocket(newSocket);
 
         newSocket.on('playerPositions', (data) => {
             setPlayers(data);
+            if (data[newSocket.id]) {
+                setPlayerColor(data[newSocket.id].playerColor);
+                setTrailColor(data[newSocket.id].trailColor);
+            }
         });
 
-        newSocket.on('playerMove', ({ playerId, position, trail }) => {
+        newSocket.on('playerMove', ({ playerId, position, trail, playerColor, trailColor }) => {
             setPlayers(prevPlayers => ({
                 ...prevPlayers,
                 [playerId]: {
                     ...prevPlayers[playerId],
                     position,
                     trail: trail || prevPlayers[playerId].trail,
+                    playerColor: playerColor || prevPlayers[playerId].playerColor,
+                    trailColor: trailColor || prevPlayers[playerId].trailColor,
                 }
             }));
         });
@@ -92,7 +98,6 @@ const Ball2 = () => {
         };
     }, []);
 
-
     const handleBoundaryCollision = useCallback(() => {
         if (position.x < 0 || position.x + ballSize > 1) {
             setVelocity(prevVelocity => ({ ...prevVelocity, x: -prevVelocity.x }));
@@ -113,12 +118,12 @@ const Ball2 = () => {
     }, []);
 
     const handleTouchStart = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         setIsDrawingTrail(true);
     };
 
     const handleTouchEnd = (e) => {
-        e.preventDefault(); // Prevent default touch behavior
+        e.preventDefault();
         setIsDrawingTrail(false);
     };
 
@@ -147,7 +152,7 @@ const Ball2 = () => {
                                 ctx.lineTo(segment[i].x * playZoneWidth, segment[i].y * playZoneHeight);
                             }
 
-                            ctx.strokeStyle = 'blue';
+                            ctx.strokeStyle = player.trailColor;
                             ctx.lineWidth = ballSize * playZoneWidth / 4;
                             ctx.globalAlpha = 0.5;
                             ctx.stroke();
@@ -162,7 +167,7 @@ const Ball2 = () => {
                         ballSize * playZoneWidth / 2,
                         0, 2 * Math.PI
                     );
-                    ctx.fillStyle = 'darkolivegreen';
+                    ctx.fillStyle = player.playerColor;
                     ctx.fill();
                 });
             } else {
@@ -174,9 +179,7 @@ const Ball2 = () => {
                         ctx.lineTo(trail[i].x * playZoneWidth, trail[i].y * playZoneHeight);
                     }
 
-
-
-                    ctx.strokeStyle = 'blue';
+                    ctx.strokeStyle = trailColor;
                     ctx.lineWidth = ballSize * playZoneWidth / 4;
                     ctx.globalAlpha = 0.5;
                     ctx.stroke();
@@ -190,13 +193,13 @@ const Ball2 = () => {
                     ballSize * playZoneWidth / 2,
                     0, 2 * Math.PI
                 );
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = playerColor;
                 ctx.fill();
             }
         };
 
         draw();
-    }, [players, position, trail, ballSize, playZoneDimensions, isPhone]);
+    }, [players, position, trail, ballSize, playZoneDimensions, isPhone, playerColor, trailColor]);
 
     return (
         <div style={{
