@@ -2,7 +2,7 @@
 .start-screen, .mobile-start-screen {
     height: 100vh;
     text-align: center;
-    color: #d9dadb;
+    color: #222222;
     font-family: 'IBM Plex Mono', monospace; /* Update to use the new font */
     overflow: hidden;
 }
@@ -11,14 +11,15 @@
     font-family: 'Futura PT Heavy Italic', sans-serif; /* Ensure this matches the actual font-family name */
     font-size: 3em;
     margin-bottom: 20px;
-    color: #A7B2AD;
+    color: #222222;
     font-style: italic; /* Make sure the font style is italic */
 }
 
 .start-button {
-    padding: 10px 20px;
+    font-family: 'IBM Plex Mono', monospace; /* Update to use the new font */
+    padding: 20px 130px;
     font-size: 1.2em;
-    background-color: #A7B2AD;
+    background-color: rgb(211, 225, 239);
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -28,15 +29,17 @@
 }
 
 .start-button:hover {
-    background-color: #adb5bd;
+    background-color: #ececff;
 }
 
 /* Desktop-specific styles */
 .content {
+    margin-top: 50px;
+    margin-bottom: 50px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: calc(100vh - 250px); /* Adjust height as needed to accommodate the title and button */
+    height: calc(100vh - 350px); /* Adjust height as needed to accommodate the title and button */
     position: relative; /* Needed for the pseudo-element */
 }
 
@@ -56,12 +59,14 @@
     left: 50%;
     width: 1px;
     transform: translateX(-50%);
-    border-left: 2px dashed #A7B2AD; /* Dashed line */
+    border-left: 1px dashed #222222; /* Dashed line */
+    opacity: 40%;
 }
 
 .column {
     text-align: center;
-    width: 45%; /* Adjust width if needed */
+    width: 35%;
+    font-weight: bold/* Adjust width if needed */
 }
 
 /* Mobile-specific styles */
@@ -90,19 +95,19 @@
 h2 {
     font-size: 1.5em;
     margin-bottom: 10px;
-    color: #A7B2AD;
+    color: #222222;
 }
 
 p {
     font-size: 1em;
     line-height: 1.5;
-    color: #A7B2AD;
+    color: #222222;
 }
 
 /* Rotation styles */
 .rotate-screen {
     background-blend-mode: multiply;
-    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
+    background: radial-gradient(circle, rgb(152, 207, 183), rgb(235, 101, 102));
     width: 100vh;
     height: 100dvw;
     transform: rotate(90deg);

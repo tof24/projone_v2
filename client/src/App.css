@@ -18,7 +18,7 @@
 
   #pc.display {
 
-    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
+    background: radial-gradient(circle, rgb(245, 139, 125), rgb(88, 161, 233));
     background-blend-mode: multiply;
     color: white;
     height: 100vh;
@@ -30,7 +30,7 @@
 
   body{
     background-blend-mode: multiply;
-    background: radial-gradient(circle, rgb(50, 50, 50), rgb(32, 45, 39));
+    background: radial-gradient(circle, rgb(152, 207, 183), rgb(145, 149, 197));
   }
 
   #beggin::before{

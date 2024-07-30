@@ -82,7 +82,7 @@ const Ball = () => {
         const handleDeviceOrientation = (event) => {
             const beta = event.beta;
             const gamma = event.gamma;
-            const sensitivity = 0.000005;
+            const sensitivity = 0.000003;
 
             const newAcceleration = {
                 x: gamma * sensitivity,
