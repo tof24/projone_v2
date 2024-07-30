@@ -46,42 +46,7 @@ function App() {
 
     return (
         <div>
-        <div className={"bgbg"} id={"beggin"}>
-
-            {!isStart && !isPhone() && (
-                <div>
-                    <StartScreen isStart={isStart} setIsStart={setIsStart}></StartScreen>
-                </div>
-            )}
-
-            {!isPhone() && isStart &&(
-            <div className={"display"}>
-
-
-                    <div>
-                        <div className={"zoomed-div"}>
-                            <Ball2 class={""} />
-                        </div>
-                    </div>
-
-            </div>
-            )}
-
-        </div>
-
-            {isPhone() && isStart && (
-                <div>
-                    <Portrait />
-                    <Ball />
-                </div>
-            )}
-
-            {isPhone() && !isStart && (
-                <div>
-                    <MobileStartScreen isStart={isStart} setIsStart={setIsStart}></MobileStartScreen>
-                </div>
-            )}
-
+            <Orientation></Orientation>
         </div>
     );
 }
