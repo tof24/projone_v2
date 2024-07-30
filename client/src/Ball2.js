@@ -224,7 +224,7 @@ const Ball2 = () => {
                     onTouchEnd={handleTouchEnd}
                     style={{
                         position: 'absolute',
-                        bottom: '50%',
+                        bottom: '20px',
                         left: '50%',
                         transform: 'translateX(-50%)',
                         padding: '20px 30px',

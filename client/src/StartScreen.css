@@ -24,6 +24,7 @@
     cursor: pointer;
     color: #333;
     margin-top: 20px; /* Add some margin to separate the button from the content */
+    bottom: 50%;
 }
 
 .start-button:hover {
