@@ -16,7 +16,6 @@
 }
 
 .start-button {
-    font-family: 'IBM Plex Mono', monospace; /* Update to use the new font */
     padding: 20px 130px;
     font-size: 1.2em;
     background-color: rgb(211, 225, 239);
@@ -107,7 +106,7 @@ p {
 /* Rotation styles */
 .rotate-screen {
     background-blend-mode: multiply;
-    background: radial-gradient(circle, rgb(152, 207, 183), rgb(235, 101, 102));
+    background-image: linear-gradient(66deg, rgb(245, 158, 187) 0%, rgb(88, 161, 233) 100%);
     width: 100vh;
     height: 100dvw;
     transform: rotate(90deg);
