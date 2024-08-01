@@ -11,8 +11,8 @@ const Ball = () => {
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]);
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
-    const [playerColor, setPlayerColor] = useState('#ff0000'); // Default color, will be updated from server
-    const [trailColor, setTrailColor] = useState('#0000ff'); // Default trail color, will be updated from server
+    const [playerColor, setPlayerColor] = useState('#ff0000');
+    const [trailColor, setTrailColor] = useState('#0000ff');
     const [permissionGranted, setPermissionGranted] = useState(false);
     const [orientation, setOrientation] = useState({ alpha: null, beta: null, gamma: null });
     const [error, setError] = useState(null);
@@ -307,14 +307,14 @@ const Ball = () => {
         bottom: '30px',
         left: '50%',
         transform: 'translateX(-50%) rotate(90deg)',
-        width: '90px', // Adjust width and height for your button size
+        width: '90px',
         height: '90px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: '16px',
-        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000', // darker red on drawing
-        color: '#fff', // text color
+        backgroundColor: isDrawingTrail ? '#b30000' : '#ff0000',
+        color: '#fff',
         border: 'none',
         outline: 'none',
         borderRadius: '50%',
@@ -357,25 +357,28 @@ const Ball = () => {
             )}
 
             {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-4 rounded shadow-lg">
+                <div className="overlay">
+                    <div className="modal-box">
                         <p>Requesting permission to use the gyroscope</p>
-                        <div className="flex justify-end mt-4">
+                        <div className="button-group">
                             <button
-                                onClick={() => handlePermission(false)}
-                                className="mr-2 px-4 py-2 bg-red-500 text-white rounded"
+                                className="button button-deny"
+                                onClick={() => handlePermission(false)} // Correct usage in React
                             >
                                 Don't Allow
                             </button>
                             <button
-                                onClick={() => handlePermission(true)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded"
+                                className="button button-allow"
+                                onClick={() => handlePermission(true)} // Correct usage in React
                             >
                                 Allow
                             </button>
                         </div>
                     </div>
                 </div>
+
+
+
             )}
         </div>
     );

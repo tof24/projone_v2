@@ -202,3 +202,62 @@
     padding: 100px;
     z-index: 1000;
   }
+
+
+
+  /* Full-screen overlay */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(90deg); /* Rotate the overlay by 90 degrees */
+    transform-origin: center; /* Set the origin of the rotation */
+  }
+
+
+  /* Modal box */
+  .modal-box {
+    background-color: #98cfb7;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  /* Button group */
+  .button-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  /* Button styles */
+  .button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+
+  .button-deny {
+    background-color: #e3342f;
+  }
+
+  .button-deny:hover {
+    background-color: #cc1f1a;
+  }
+
+  .button-allow {
+    background-color: #3490dc;
+  }
+
+  .button-allow:hover {
+    background-color: #2779bd;
+  }
