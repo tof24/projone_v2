@@ -14,24 +14,22 @@ const Orientation = () => {
         };
 
         const requestPermission = async () => {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                try {
-                    const response = await DeviceOrientationEvent.requestPermission();
-                    if (response === 'granted') {
-                        setPermissionGranted(true);
-                        window.addEventListener('deviceorientation', handleOrientation, true);
-                    } else {
-                        console.warn('Permission to access device orientation was denied.');
-                    }
-                } catch (error) {
-                    console.error('Error requesting device orientation permission:', error);
-                }
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                // Handle iOS 13+ devices.
+                DeviceMotionEvent.requestPermission()
+                    .then((state) => {
+                        if (state === 'granted') {
+                            window.addEventListener('devicemotion', handleOrientation);
+                        } else {
+                            console.error('Request to access the orientation was rejected');
+                        }
+                    })
+                    .catch(console.error);
             } else {
-                // If permission request API is not available, assume permissions are granted (pre-iOS 13)
-                setPermissionGranted(true);
-                window.addEventListener('deviceorientation', handleOrientation, true);
+                // Handle regular non iOS 13+ devices.
+                window.addEventListener('devicemotion', handleOrientation);
             }
-        };
+        }
 
         requestPermission();
 
