@@ -1,55 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const Orientation = () => {
-    const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });
+    const [orientation, setOrientation] = useState({ alpha: null, beta: null, gamma: null });
+    const [error, setError] = useState(null);
     const [permissionGranted, setPermissionGranted] = useState(false);
 
-    useEffect(() => {
-        const handleOrientation = event => {
-            setOrientation({
-                alpha: event.alpha,
-                beta: event.beta,
-                gamma: event.gamma
-            });
-        };
+    const onDeviceOrientation = (event) => {
+        setOrientation({
+            alpha: event.alpha,
+            beta: event.beta,
+            gamma: event.gamma,
+        });
+    };
 
-        const requestPermission = async () => {
-            if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                // Handle iOS 13+ devices.
-                DeviceMotionEvent.requestPermission()
-                    .then((state) => {
-                        if (state === 'granted') {
-                            window.addEventListener('devicemotion', handleOrientation);
-                        } else {
-                            console.error('Request to access the orientation was rejected');
-                        }
-                    })
-                    .catch(console.error);
-            } else {
-                // Handle regular non iOS 13+ devices.
-                window.addEventListener('devicemotion', handleOrientation);
+    const requestAccess = useCallback(async () => {
+        if (!window.DeviceOrientationEvent) {
+            setError(new Error('Device orientation event is not supported by your browser'));
+            return false;
+        }
+
+        if (window.DeviceOrientationEvent.requestPermission && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+            let permission;
+            try {
+                permission = await window.DeviceOrientationEvent.requestPermission();
+            } catch (err) {
+                setError(err);
+                return false;
+            }
+            if (permission !== 'granted') {
+                setError(new Error('Request to access the device orientation was rejected'));
+                return false;
             }
         }
 
-        requestPermission();
+        window.addEventListener('deviceorientation', onDeviceOrientation, true);
+        setPermissionGranted(true);
+        return true;
+    }, []);
 
+    const revokeAccess = useCallback(async () => {
+        window.removeEventListener('deviceorientation', onDeviceOrientation, true);
+        setOrientation({ alpha: null, beta: null, gamma: null });
+        setPermissionGranted(false);
+    }, []);
+
+    useEffect(() => {
         return () => {
-            window.removeEventListener('deviceorientation', handleOrientation, true);
+            revokeAccess();
         };
-    }, []); // Empty array as dependency to run only once on component mount
+    }, [revokeAccess]);
 
     return (
         <div>
             <h2>Gyroscope Data:</h2>
-            {permissionGranted ? (
+            {error ? (
+                <p>Error: {error.message}</p>
+            ) : permissionGranted ? (
                 <>
-                    <p>Alpha: {orientation.alpha}</p>
-                    <p>Beta: {orientation.beta}</p>
-                    <p>Gamma: {orientation.gamma}</p>
+                    <p>Alpha: {orientation.alpha !== null ? orientation.alpha : 'N/A'}</p>
+                    <p>Beta: {orientation.beta !== null ? orientation.beta : 'N/A'}</p>
+                    <p>Gamma: {orientation.gamma !== null ? orientation.gamma : 'N/A'}</p>
                 </>
             ) : (
-                <p>Permission to access device orientation was not granted.</p>
+                <p>Permission to access device orientation has not been granted.</p>
             )}
+            <div>
+                <button onClick={requestAccess} disabled={permissionGranted}>
+                    Request Access
+                </button>
+                <button onClick={revokeAccess} disabled={!permissionGranted}>
+                    Revoke Access
+                </button>
+            </div>
         </div>
     );
 };
