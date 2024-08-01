@@ -85,7 +85,7 @@ const Ball = () => {
     const handleDeviceOrientation = useCallback((event) => {
         const beta = event.beta;
         const gamma = event.gamma;
-        const sensitivity = 0.000003;
+        const sensitivity = 0.000006;
 
         const newAcceleration = {
             x: gamma * sensitivity,
@@ -142,7 +142,7 @@ const Ball = () => {
     useEffect(() => {
         const emitPlayerMoveThrottled = throttle((data) => {
             socket.emit('playerMove', data);
-        }, 2000);
+        }, 100);
 
         const interval = setInterval(() => {
             let newVelocity = {
