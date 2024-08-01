@@ -13,6 +13,10 @@ const Ball = () => {
     const [isDrawingTrail, setIsDrawingTrail] = useState(false);
     const [playerColor, setPlayerColor] = useState('#ff0000'); // Default color, will be updated from server
     const [trailColor, setTrailColor] = useState('#0000ff'); // Default trail color, will be updated from server
+    const [permissionGranted, setPermissionGranted] = useState(false);
+    const [orientation, setOrientation] = useState({ alpha: null, beta: null, gamma: null });
+    const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const ballSize = 0.04;
 
     const playZoneAspectRatio = 1080 / 1920;
@@ -78,25 +82,60 @@ const Ball = () => {
         return () => newSocket.disconnect();
     }, []);
 
-    useEffect(() => {
-        const handleDeviceOrientation = (event) => {
-            const beta = event.beta;
-            const gamma = event.gamma;
-            const sensitivity = 0.000003;
+    const handleDeviceOrientation = useCallback((event) => {
+        const beta = event.beta;
+        const gamma = event.gamma;
+        const sensitivity = 0.000003;
 
-            const newAcceleration = {
-                x: gamma * sensitivity,
-                y: beta * sensitivity
-            };
-
-            setAcceleration(newAcceleration);
+        const newAcceleration = {
+            x: gamma * sensitivity,
+            y: beta * sensitivity
         };
 
-        window.addEventListener('deviceorientation', handleDeviceOrientation);
-        return () => {
-            window.removeEventListener('deviceorientation', handleDeviceOrientation);
-        };
+        setAcceleration(newAcceleration);
+        setOrientation({
+            alpha: event.alpha,
+            beta: event.beta,
+            gamma: event.gamma,
+        });
     }, []);
+
+    const requestAccess = useCallback(async () => {
+        if (!window.DeviceOrientationEvent) {
+            setError(new Error('Device orientation event is not supported by your browser'));
+            return false;
+        }
+
+        if (window.DeviceOrientationEvent.requestPermission && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+            let permission;
+            try {
+                permission = await window.DeviceOrientationEvent.requestPermission();
+            } catch (err) {
+                setError(err);
+                return false;
+            }
+            if (permission !== 'granted') {
+                setError(new Error('Request to access the device orientation was rejected'));
+                return false;
+            }
+        }
+
+        window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+        setPermissionGranted(true);
+        return true;
+    }, [handleDeviceOrientation]);
+
+    const revokeAccess = useCallback(async () => {
+        window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
+        setOrientation({ alpha: null, beta: null, gamma: null });
+        setPermissionGranted(false);
+    }, [handleDeviceOrientation]);
+
+    useEffect(() => {
+        return () => {
+            revokeAccess();
+        };
+    }, [revokeAccess]);
 
     const maxVelocity = 0.01;
 
@@ -174,6 +213,23 @@ const Ball = () => {
         e.preventDefault();
         setIsDrawingTrail(false);
     };
+
+    const handlePermission = async (allow) => {
+        setShowModal(false);
+        if (allow) {
+            await requestAccess();
+        } else {
+            setError(new Error('Permission denied by user'));
+        }
+    };
+
+    useEffect(() => {
+        if (isPhone()) {
+            setShowModal(true);
+        } else {
+            requestAccess();
+        }
+    }, [isPhone, requestAccess]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -297,10 +353,29 @@ const Ball = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" height="28px" viewBox="0 -960 960 960" width="28px" style={svgStyle}>
                         <path d="M240-120q-45 0-89-22t-71-58q26 0 53-20.5t27-59.5q0-50 35-85t85-35q50 0 85 35t35 85q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 23-5.5 42T220-202q5 2 10 2h10Zm230-160L360-470l358-358q11-11 27.5-11.5T774-828l54 54q12 12 12 28t-12 28L470-360Zm-190 80Z" fill={isDrawingTrail ? '#fce4e4' : '#e8eaed'} />
                     </svg>
-
-
-
                 </button>
+            )}
+
+            {showModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-4 rounded shadow-lg">
+                        <p>Requesting permission to use the gyroscope</p>
+                        <div className="flex justify-end mt-4">
+                            <button
+                                onClick={() => handlePermission(false)}
+                                className="mr-2 px-4 py-2 bg-red-500 text-white rounded"
+                            >
+                                Don't Allow
+                            </button>
+                            <button
+                                onClick={() => handlePermission(true)}
+                                className="px-4 py-2 bg-blue-500 text-white rounded"
+                            >
+                                Allow
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

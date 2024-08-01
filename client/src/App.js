@@ -46,8 +46,7 @@ function App() {
 
     return (
 
-        <Orientation></Orientation>
-        /*<div>
+       <div>
             <div className={"bgbg"} id={"beggin"}>
 
                 {!isStart && !isPhone() && (
@@ -84,7 +83,7 @@ function App() {
                 </div>
             )}
 
-        </div>*/
+        </div>
     );
 }
 
