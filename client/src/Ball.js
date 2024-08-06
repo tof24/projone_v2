@@ -6,7 +6,7 @@ import { throttle } from 'lodash';
 const Ball = () => {
     const [socket, setSocket] = useState(null);
     const [players, setPlayers] = useState({});
-    const [position, setPosition] = useState({ x: 0.02, y: 0.02 });
+    const [position, setPosition] = useState({ x: 0.5, y: 0.5 });
     const [velocity, setVelocity] = useState({ x: 0, y: 0 });
     const [acceleration, setAcceleration] = useState({ x: 0, y: 0 });
     const [trail, setTrail] = useState([]);
