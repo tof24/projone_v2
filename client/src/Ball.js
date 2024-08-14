@@ -177,7 +177,7 @@ const Ball = () => {
 
                 return newPosition;
             });
-        }, 1000 / 60);
+        }, 1000 / 120);
 
         return () => {
             clearInterval(interval);
